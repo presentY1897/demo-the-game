@@ -1,0 +1,70 @@
+.panel {
+  display: grid;
+  gap: var(--tg-space-4);
+  padding: var(--tg-space-6);
+  background: var(--tg-color-surface-subtle);
+  border: 1px solid var(--tg-color-border);
+  border-radius: var(--tg-radius-xl);
+}
+
+.rowPatient,
+.rowStaff {
+  display: grid;
+  gap: var(--tg-space-1);
+  max-width: 85%;
+}
+
+.rowPatient {
+  justify-self: end;
+  text-align: right;
+}
+
+.rowStaff {
+  justify-self: start;
+}
+
+.metaPatient,
+.metaStaff {
+  font-size: 11px;
+  color: var(--tg-color-text-muted);
+}
+
+.bubble {
+  padding: var(--tg-space-3) var(--tg-space-4);
+  border-radius: var(--tg-radius-lg);
+  text-align: left;
+}
+
+.bubblePatient {
+  background: var(--tg-color-primary);
+  border-bottom-right-radius: var(--tg-radius-sm);
+}
+
+.bubbleStaff {
+  background: var(--tg-color-surface);
+  border: 1px solid var(--tg-color-border);
+  border-bottom-left-radius: var(--tg-radius-sm);
+}
+
+.text {
+  margin: 0;
+  font-size: var(--tg-font-size-md);
+}
+
+.bubblePatient .text {
+  color: var(--tg-color-on-primary);
+}
+
+.translationPatient,
+.translationStaff {
+  margin: 4px 0 0;
+  font-size: var(--tg-font-size-sm);
+}
+
+.translationPatient {
+  color: color-mix(in srgb, var(--tg-color-on-primary) 78%, transparent);
+}
+
+.translationStaff {
+  color: var(--tg-color-text-muted);
+}

@@ -1,4 +1,5 @@
 export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './Button'
+export { ButtonLink, type ButtonLinkProps } from './ButtonLink'
 export { Badge, type BadgeProps, type BadgeTone } from './Badge'
 export { Card, type CardProps } from './Card'
 export {

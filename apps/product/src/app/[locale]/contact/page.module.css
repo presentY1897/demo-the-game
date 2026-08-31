@@ -1,0 +1,13 @@
+.main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--tg-space-12) var(--tg-space-5) 0;
+  display: grid;
+  gap: var(--tg-space-8);
+}
+
+.intro {
+  display: grid;
+  gap: var(--tg-space-2);
+  max-width: 480px;
+}

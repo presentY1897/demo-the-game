@@ -1,0 +1,87 @@
+.stage {
+  border-radius: var(--tg-radius-xl);
+  padding: var(--tg-space-6) var(--tg-space-8) var(--tg-space-8);
+  box-shadow: var(--tg-shadow-lg);
+}
+
+.stageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tg-space-4);
+  margin-bottom: var(--tg-space-6);
+  font-size: var(--tg-font-size-xs);
+}
+
+.session {
+  letter-spacing: 0.06em;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--tg-radius-full);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.source {
+  margin: 0;
+  font-size: clamp(var(--tg-font-size-lg), 2.6vw, var(--tg-font-size-2xl));
+  font-weight: var(--tg-font-weight-semibold);
+  line-height: var(--tg-leading-relaxed);
+  min-height: 2.6em;
+}
+
+.cursor {
+  animation: blink 0.9s steps(2) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.translationSlot {
+  min-height: 3.4em;
+  margin-top: var(--tg-space-4);
+  display: grid;
+  gap: var(--tg-space-1);
+}
+
+.pair {
+  font-size: var(--tg-font-size-xs);
+}
+
+.translation {
+  margin: 0;
+  font-size: clamp(var(--tg-font-size-md), 2vw, var(--tg-font-size-xl));
+  line-height: var(--tg-leading-relaxed);
+  animation: rise 0.4s ease both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (max-width: 640px) {
+  .stage {
+    padding: var(--tg-space-5);
+  }
+}

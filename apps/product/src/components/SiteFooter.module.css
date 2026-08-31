@@ -1,0 +1,20 @@
+.footer {
+  border-top: 1px solid var(--tg-color-border);
+  margin-top: var(--tg-space-16);
+}
+
+.inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--tg-space-8) var(--tg-space-5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tg-space-2) var(--tg-space-6);
+  font-size: var(--tg-font-size-xs);
+  color: var(--tg-color-text-muted);
+}
+
+.brand {
+  font-weight: var(--tg-font-weight-bold);
+  color: var(--tg-color-text);
+}

@@ -1,0 +1,78 @@
+.form {
+  display: grid;
+  gap: var(--tg-space-5);
+  max-width: 480px;
+}
+
+.interests {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--tg-space-2);
+}
+
+.legend {
+  padding: 0;
+  font-size: var(--tg-font-size-sm);
+  font-weight: var(--tg-font-weight-medium);
+}
+
+.chips {
+  display: flex;
+  gap: var(--tg-space-2);
+}
+
+.chip {
+  padding: 8px 16px;
+  border-radius: var(--tg-radius-full);
+  border: 1px solid var(--tg-color-border);
+  background: var(--tg-color-surface);
+  color: var(--tg-color-text-muted);
+  font-family: inherit;
+  font-size: var(--tg-font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--tg-color-primary-subtle);
+  border-color: var(--tg-color-primary);
+  color: var(--tg-color-primary);
+}
+
+.messageField {
+  display: grid;
+  gap: var(--tg-space-1);
+}
+
+.textarea {
+  padding: 10px 14px;
+  border: 1px solid var(--tg-color-border);
+  border-radius: var(--tg-radius-md);
+  background: var(--tg-color-surface);
+  color: var(--tg-color-text);
+  font-family: inherit;
+  font-size: var(--tg-font-size-md);
+  line-height: var(--tg-leading-normal);
+  resize: vertical;
+}
+
+.textarea::placeholder {
+  color: var(--tg-color-text-muted);
+}
+
+.textarea:focus-visible {
+  outline: 2px solid var(--tg-color-primary);
+  outline-offset: -1px;
+  border-color: var(--tg-color-primary);
+}
+
+.success {
+  display: grid;
+  gap: var(--tg-space-2);
+}

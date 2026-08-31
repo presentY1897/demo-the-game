@@ -1,0 +1,131 @@
+.main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 var(--tg-space-5);
+}
+
+.eyebrow {
+  margin: 0 0 var(--tg-space-3);
+  font-size: var(--tg-font-size-xs);
+  font-weight: 600;
+  color: var(--tg-color-primary);
+}
+
+.hero {
+  padding: var(--tg-space-16) 0 var(--tg-space-12);
+  display: grid;
+  gap: var(--tg-space-4);
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: clamp(var(--tg-font-size-3xl), 5.4vw, var(--tg-font-size-display));
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: var(--tg-leading-tight);
+  max-width: 18em;
+}
+
+.heroSubtitle {
+  margin: 0;
+  font-size: var(--tg-font-size-lg);
+  color: var(--tg-color-text-muted);
+  max-width: 34em;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tg-space-3);
+  margin: var(--tg-space-2) 0 var(--tg-space-8);
+}
+
+.section {
+  padding: var(--tg-space-12) 0;
+  display: grid;
+  gap: var(--tg-space-5);
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--tg-space-4);
+  margin-top: var(--tg-space-2);
+}
+
+.feature {
+  display: grid;
+  gap: var(--tg-space-2);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--tg-space-10);
+  align-items: center;
+}
+
+.splitCopy {
+  display: grid;
+  gap: var(--tg-space-4);
+}
+
+.checkList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--tg-space-2);
+  font-size: var(--tg-font-size-sm);
+  color: var(--tg-color-text);
+}
+
+.checkList li::before {
+  content: '✓';
+  color: var(--tg-color-primary);
+  font-weight: 700;
+  margin-right: var(--tg-space-2);
+}
+
+.steps {
+  margin: var(--tg-space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--tg-space-6);
+}
+
+.step {
+  display: grid;
+  gap: var(--tg-space-3);
+  padding-top: var(--tg-space-4);
+  border-top: 2px solid var(--tg-color-primary-subtle);
+}
+
+.stepIndex {
+  font-size: var(--tg-font-size-sm);
+  color: var(--tg-color-primary);
+}
+
+.ctaBand {
+  margin: var(--tg-space-12) 0 0;
+  padding: var(--tg-space-12) var(--tg-space-8);
+  background: var(--tg-color-primary-subtle);
+  border-radius: var(--tg-radius-xl);
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: var(--tg-space-3);
+}
+
+@media (max-width: 800px) {
+  .split {
+    grid-template-columns: 1fr;
+    gap: var(--tg-space-6);
+  }
+
+  .hero {
+    padding-top: var(--tg-space-10);
+  }
+}

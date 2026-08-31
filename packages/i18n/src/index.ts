@@ -5,6 +5,8 @@ export {
   defaultLocale,
   resources,
   createTranslator,
+  createTranslatorFor,
+  type DotPaths,
   type Locale,
   type MessageKey,
   type Translator,

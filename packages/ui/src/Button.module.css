@@ -3,6 +3,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--tg-space-2);
+  text-decoration: none;
   border: 1px solid transparent;
   border-radius: var(--tg-radius-md);
   font-family: inherit;
