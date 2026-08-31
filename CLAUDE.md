@@ -9,8 +9,9 @@
   수정하지 않는다 — 모든 작업은 worktree 디렉토리 안에서 한다.
 - 새 작업은 `git worktree add feature-<이름> -b feature-<이름> main`으로
   worktree를 만들어 진행하고, 완료 후 main에 **rebase 후 fast-forward 머지**한다.
-- `pull.rebase=true`, `rebase.autoStash=true`가 저장소 설정에 켜져 있다.
-  merge 커밋을 만들지 않는다.
+- 저장소 설정: `merge.ff=only`(rebase 없이 merge 시도 시 거부), `pull.ff=only`
+  (pull은 fast-forward만 — diverge 시 에러로 멈추고 수동 판단),
+  `rebase.autoStash=true`. merge 커밋을 만들지 않는다.
 
 ## 구조
 
