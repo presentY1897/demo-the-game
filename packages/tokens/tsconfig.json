@@ -1,0 +1,4 @@
+{
+  "extends": "@thegame/config/tsconfig/base.json",
+  "include": ["src"]
+}

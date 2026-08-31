@@ -28,3 +28,4 @@
 | [0001](./0001-pnpm-workspace-monorepo.md) | pnpm workspace 기반 모노레포 채택 | Accepted |
 | [0002](./0002-live-demo-expo-react-native.md) | 라이브 데모를 Expo 기반 React Native로 구현 | Accepted |
 | [0003](./0003-sse-for-broadcast-ws-for-conversation.md) | 학회 자막은 SSE, 병원 대화는 WebSocket | Accepted |
+| [0004](./0004-internal-packages-source-only.md) | 공유 패키지는 TS 소스로 직접 배포 (JIT) | Accepted |

@@ -1,0 +1,32 @@
+{
+  "name": "@thegame/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@thegame/tokens": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@storybook/react-vite": "^9.1.0",
+    "@thegame/config": "workspace:*",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "storybook": "^9.1.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.0"
+  }
+}
