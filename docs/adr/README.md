@@ -31,3 +31,4 @@
 | [0004](./0004-internal-packages-source-only.md) | 공유 패키지는 TS 소스로 직접 배포 (JIT) | Accepted |
 | [0005](./0005-no-corporate-app.md) | 기업 홈페이지 앱을 만들지 않고 제품 홈페이지에 흡수 | Accepted |
 | [0006](./0006-hosting-render-and-vercel.md) | 목 서버는 Render, 웹 산출물은 Vercel에 배포 | Accepted |
+| [0007](./0007-translation-fallback-chain.md) | CareTalk 대화 번역은 3단 폴백 체인 (사전 → Azure → `[demo]`) | Accepted |

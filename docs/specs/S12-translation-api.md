@@ -58,3 +58,25 @@
 ## 범위 제외
 
 자막(Symposia) API 번역, 언어 자동 감지, 용어집(glossary) 관리, 클라이언트 직접 호출.
+
+## 구현 노트 (명세와 달라진 점)
+
+구현: `apps/mock-server/src/{translate,azure-translator}.ts` ·
+설계 배경 [ADR 0007](../adr/0007-translation-fallback-chain.md) ·
+운영 문서 [apps/mock-server/README.md](../../apps/mock-server/README.md)
+
+- **캐시 키에 출발 언어를 포함**한다. 명세는 (원문, 대상 언어)지만 출발 언어가 다르면 결과도
+  달라지므로 (출발 언어, 대상 언어, 원문)을 키로 쓴다. 상한 1,000건은 그대로.
+- **Azure 성공 결과만 캐시**한다. 실패를 캐시하면 장애가 복구돼도 폴백이 굳어 버린다.
+- **환경변수를 3개 추가**했다 — `AZURE_TRANSLATOR_REGION`(지역 전용 리소스용 헤더),
+  `AZURE_TRANSLATOR_ENDPOINT`(전용 엔드포인트), `AZURE_TRANSLATOR_TIMEOUT_MS`(기본 3000).
+  모두 선택 사항이고, 키가 없으면 어느 것도 읽지 않는다.
+- **연속 실패 차단기를 추가**했다(명세에 없던 항목). 3회 연속 실패 시 30초간 2단계를 건너뛴다.
+  없으면 API 장애 때 메시지마다 3초씩 지연돼 완성 기준 3("지연 없이 계속")을 만족하지 못한다.
+- **앱의 `zh`는 Azure 요청 시 `zh-Hans`로 변환**한다. Azure가 간체/번체를 구분하기 때문.
+- **호출부 이관은 미완**이다. `translate.ts`는 기존 동기 `mockTranslate`(사전+`[demo]`)를
+  유지한 채 비동기 `translateText`/`translateConversation`을 추가했다. `conversation.ts`가
+  아직 동기 `mockTranslate`를 호출하므로, **그 호출부가 `await translateText(...)`로 옮기기
+  전까지 2단계(Azure)는 실제로 켜지지 않는다.** 완성 기준 1은 이 이관 후 충족된다.
+- 사전은 아직 `translate.ts` 안의 표다. S05(정형 문구)가 들어오면 `packages/i18n`을 단일
+  원천으로 삼아 대체한다.
