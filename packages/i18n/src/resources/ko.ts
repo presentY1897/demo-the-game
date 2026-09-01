@@ -35,6 +35,9 @@ export const ko = {
     paused: '일시정지됨 — 새 자막이 대기 중입니다',
     resume: '계속 보기',
     sessionEnded: '세션이 종료되었습니다',
+    waiting: '자막을 기다리는 중…',
+    stageMode: '스테이지 모드',
+    stageModeHint: '어두운 강연장용 — 큰 자막, 화면 꺼짐 방지',
   },
   conversation: {
     inputPlaceholder: '메시지를 입력하세요…',

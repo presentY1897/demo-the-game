@@ -27,6 +27,9 @@ export const en = {
     paused: 'Paused — new captions are waiting',
     resume: 'Resume',
     sessionEnded: 'The session has ended',
+    waiting: 'Waiting for captions…',
+    stageMode: 'Stage mode',
+    stageModeHint: 'For dark lecture halls — large captions, screen stays on',
   },
   conversation: {
     inputPlaceholder: 'Type your message…',
