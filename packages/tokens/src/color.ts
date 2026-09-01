@@ -31,7 +31,7 @@ export const palette = {
   },
   green: { 500: '#16A34A', 600: '#15803D' },
   amber: { 500: '#D97706', 600: '#B45309' },
-  red: { 500: '#DC2626', 600: '#B91C1C' },
+  red: { 400: '#F87171', 500: '#DC2626', 600: '#B91C1C' },
   blue: { 500: '#2563EB', 600: '#1D4ED8' },
 } as const
 
@@ -69,7 +69,8 @@ export const semanticColor = {
     accent: palette.coral[400],
     success: palette.green[500],
     warning: palette.amber[500],
-    danger: palette.red[500],
+    // 어두운 배경에서 red[500]은 surfaceSubtle 대비 2.81:1 — AA 미달이라 red[400]으로 올린다 (4.90:1)
+    danger: palette.red[400],
     info: palette.blue[500],
   },
 } as const satisfies Record<ThemeMode, Record<string, string>>
