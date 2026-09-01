@@ -401,7 +401,8 @@ vercel deploy --prod --yes
   Render 대시보드 → Environment → `ALLOWED_ORIGINS=https://thegame-live-demo.vercel.app`
   → Save. 저장하면 자동 재시작되고 로그에 `[mock-server] CORS: … 만 허용`이 찍힌다.
   Render API 키가 없어 이 단계는 수행하지 못했다.
-- **콜드스타트 확인** — 15분 유휴 후 첫 접속을 일부러 발생시켜 자막 재생이 재개되는지는
-  시간이 필요해 확인하지 못했다.
+- **콜드스타트 실측** — 유휴로 잠든 뒤 첫 요청이 **10.2초**, 바로 이어진 두 번째 요청은
+  0.20초였다(2026-09-01). 수십 초를 각오했는데 그보다 짧다. 데모로 수용 가능한 수준이고,
+  README에도 "첫 접속에 수십 초가 걸릴 수 있다"고 적어 뒀다.
 - **README 데모 GIF** — 미작성.
 
