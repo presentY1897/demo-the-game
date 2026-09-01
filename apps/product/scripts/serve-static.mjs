@@ -38,8 +38,9 @@ function resolveFile(pathname) {
 
 createServer((req, res) => {
   const { pathname } = new URL(req.url ?? '/', 'http://localhost')
-  const file = resolveFile(pathname) ?? join(root, '404.html')
-  const found = resolveFile(pathname) !== undefined
+  const match = resolveFile(pathname)
+  const file = match ?? join(root, '404.html')
+  const found = match !== undefined
   const ext = extname(file)
 
   const headers = {

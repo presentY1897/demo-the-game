@@ -13,7 +13,9 @@ S08은 라이브 데모 앱의 런타임 갱신 비용, 이쪽은 마케팅 페�
 ### 측정
 
 - 도구: Lighthouse (Chrome DevTools 모바일 에뮬레이션 + Slow 4G/4× CPU), 3회 중앙값.
-- 페이지: `/ko`(랜딩), `/ko/contact`. 프로덕션 빌드(`next build && next start`) 기준.
+- 페이지: `/ko`(랜딩), `/ko/contact`. 프로덕션 빌드 기준 — product는 `output: 'export'`라
+  `next start`가 동작하지 않는다. `next build` 산출물(`out/`)을 gzip·캐시 헤더를 붙이는
+  정적 서버(`apps/product/scripts/serve-static.mjs`)로 서빙해 측정한다.
 - 지표: Performance 점수, LCP, CLS, TBT. 기준선을 `docs/perf/002-product-lighthouse.md`에
   기록.
 
