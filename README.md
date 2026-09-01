@@ -31,6 +31,7 @@
 
 - **[아키텍처 의사결정 기록 (ADR)](./docs/adr/README.md)** — 왜 이렇게 만들었는가
 - **[성능·안정성 개선 로그](./docs/perf/README.md)** — 측정 → 원인 분석 → 개선 기록
+- **[중간 점검 (2026-09-01)](./docs/2026-09-01-checkpoint.md)** — 기능 스펙 정리와 남은 작업 계획
 - **[CLAUDE.md](./CLAUDE.md)** — AI 협업 컨벤션 (Claude Code로 개발)
 
 ## 실행
