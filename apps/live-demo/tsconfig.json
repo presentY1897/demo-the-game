@@ -2,5 +2,10 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true
-  }
+  },
+  // expo 프리셋은 allowJs라, exclude가 없으면 `expo export`가 뱉은
+  // dist/_expo/static/js/web/*.js까지 tsc가 프로그램에 넣는다. build와
+  // typecheck가 나란히 돌면 해시 파일명이 바뀌는 순간 TS6053(File not found)로
+  // 깨진다 — 산출물은 검사 대상에서 뺀다.
+  "exclude": ["node_modules", "dist", ".expo", "web-build"]
 }
