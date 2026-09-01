@@ -11,9 +11,10 @@ export default [
     languageOptions: { sourceType: 'commonjs' },
   },
   {
-    // 측정 하네스가 파싱하는 건 실시간 자막 이벤트가 아니라 **CDP 프로토콜 메시지**다
-    // (헤드리스 크로미움 제어 — docs/perf/001-자막-리렌더.md). 규칙의 대상이 아니다.
-    files: ['scripts/perf-caption.mjs'],
+    // 측정 하네스가 파싱하는 건 실시간 자막 이벤트가 아니라 **CDP 프로토콜 메시지**와
+    // axe-core 결과다 (헤드리스 크로미움 제어 — docs/perf/001, docs/specs/S06).
+    // 규칙의 대상이 아니다.
+    files: ['scripts/perf-caption.mjs', 'scripts/a11y-audit.mjs'],
     rules: { '@thegame/no-realtime-event-parse': 'off' },
   },
 ]
