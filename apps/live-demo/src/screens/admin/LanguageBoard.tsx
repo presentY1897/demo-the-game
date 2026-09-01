@@ -8,6 +8,9 @@ import { createThemedStyles, font, radius, space, useTheme, useThemedStyles } fr
 import { adminSettingsMutation, adminSettingsQuery } from './adminQueries'
 import { sameLangs, saveErrorKey, toggleLanguage, toggleListLangs } from './languageSettings'
 
+/** S06 기준 3: 최소 터치 타깃 */
+const TOUCH_TARGET = 44
+
 function LanguageToggle({
   code,
   on,
@@ -24,11 +27,11 @@ function LanguageToggle({
     <Pressable
       onPress={onPress}
       accessibilityRole="switch"
-      accessibilityState={{ checked: on }}
+      aria-checked={on}
       accessibilityLabel={languageLabel(t, code)}
       style={styles.langRow}
     >
-      <View style={[styles.checkbox, on && styles.checkboxOn]}>
+      <View style={[styles.checkbox, on && styles.checkboxOn]} aria-hidden>
         {on && <Text style={styles.checkMark}>✓</Text>}
       </View>
       <Text style={styles.langName}>{languageLabel(t, code)}</Text>
@@ -84,7 +87,9 @@ export function LanguageBoard() {
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{t('admin.langTitle')}</Text>
+      <Text style={styles.sectionTitle} accessibilityRole="header" aria-level={2}>
+        {t('admin.langTitle')}
+      </Text>
       <Text style={styles.sectionHint}>{t('admin.langHint')}</Text>
 
       {query.isPending && (
@@ -108,6 +113,7 @@ export function LanguageBoard() {
         </View>
       )}
 
+      {/* 스위치 묶음 — 목록의 이름이 있어야 "무엇의 켜고 끔"인지 전달된다 */}
       {list.map((code) => (
         <LanguageToggle
           key={code}
@@ -117,7 +123,11 @@ export function LanguageBoard() {
         />
       ))}
 
-      {blocked && <Text style={styles.errorText}>{t('admin.langLastOne')}</Text>}
+      {blocked && (
+        <Text style={styles.errorText} accessibilityRole="alert">
+          {t('admin.langLastOne')}
+        </Text>
+      )}
       {errorKey !== null && (
         <View style={styles.errorBox}>
           <Text style={styles.errorText}>{t(errorKey)}</Text>
@@ -165,28 +175,31 @@ const stylesFor = createThemedStyles((color) => ({
   },
   errorText: { fontSize: font.sm, fontWeight: '600', color: color.danger },
   errorDetail: { fontSize: font.xs, color: color.textMuted },
-  retry: { minHeight: 44, justifyContent: 'center' },
+  retry: { minHeight: TOUCH_TARGET, justifyContent: 'center' },
   retryText: { fontSize: font.sm, fontWeight: '600', color: color.primary },
   langRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[3],
-    minHeight: 44,
+    minHeight: TOUCH_TARGET,
     paddingHorizontal: space[3],
     borderRadius: radius.md,
     backgroundColor: color.surfaceSubtle,
   },
   checkbox: {
-    width: 22,
-    height: 22,
+    // 고정 크기는 글자를 키우면 체크 표시를 자른다 — 최소 크기 + 패딩으로 자라게 둔다
+    minWidth: 22,
+    minHeight: 22,
+    paddingHorizontal: 2,
     borderRadius: radius.sm,
     borderWidth: 2,
-    borderColor: color.border,
+    // 켜고 끄는 컨트롤의 표시다 — 장식용 hairline이 아니다 (WCAG 1.4.11)
+    borderColor: color.borderStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxOn: { backgroundColor: color.primary, borderColor: color.primary },
-  checkMark: { color: color.onPrimary, fontSize: font.sm, fontWeight: '700', lineHeight: font.md },
+  checkMark: { color: color.onPrimary, fontSize: font.sm, fontWeight: '700' },
   langName: { flex: 1, fontSize: font.md, color: color.text },
   langCode: { fontSize: font.xs, color: color.textMuted, fontWeight: '700' },
 }))

@@ -5,6 +5,9 @@ export const en = {
     close: 'Close',
     error: 'Something went wrong',
     comingSoon: 'Coming soon',
+    // 화면에는 기호(‹)만 보이는 컨트롤의 접근성 이름 (S06 기준 2)
+    back: 'Back',
+    switchLanguage: 'Switch language',
   },
   nav: {
     home: 'Home',
@@ -34,6 +37,9 @@ export const en = {
   caption: {
     language: 'Language',
     fontSize: 'Font size',
+    // A− / A＋ 버튼의 접근성 이름 — 두 버튼이 같은 이름이면 구분되지 않는다
+    fontSmaller: 'Decrease caption size',
+    fontLarger: 'Increase caption size',
     autoScroll: 'Auto-scroll',
     paused: 'Paused — new captions are waiting',
     resume: 'Resume',
@@ -44,6 +50,7 @@ export const en = {
   },
   conversation: {
     inputPlaceholder: 'Type your message…',
+    inputLabel: 'Message',
     send: 'Send',
     staff: 'Staff',
     patient: 'Patient',

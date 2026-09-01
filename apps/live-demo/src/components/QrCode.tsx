@@ -24,14 +24,16 @@ export function QrCode({ value, size = 168 }: { value: string; size?: number }) 
   if (failed) {
     // 무음 실패 금지 — QR을 못 그리면 링크를 대신 읽을 수 있게 알린다
     return (
-      <View style={[styles.fallback, { width: size, height: size }]}>
+      <View style={[styles.fallback, { minWidth: size, minHeight: size }]}>
         <Text style={styles.fallbackText}>{t('common.error')}</Text>
       </View>
     )
   }
 
   return (
-    <View style={styles.frame} accessible accessibilityLabel={t('room.qrHint')}>
+    // role=img — 안의 SVG 모듈은 낱개로 읽힐 것이 아니라 "QR 하나"다.
+    // (`accessible`만 주면 웹에서 role 없는 div에 aria-label이 붙어 무효 마크업이 된다)
+    <View style={styles.frame} accessible accessibilityRole="image" accessibilityLabel={t('room.qrHint')}>
       <QRCodeSvg
         value={value}
         size={size}
@@ -65,6 +67,7 @@ const stylesFor = createThemedStyles((color) => ({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: space[3],
     borderRadius: radius.md,
     backgroundColor: color.surfaceSubtle,
   },

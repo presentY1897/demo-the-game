@@ -3,6 +3,7 @@ import type { MessageKey } from '@thegame/i18n'
 import type { SessionState } from '@thegame/realtime'
 import { useT } from '../i18n'
 import { font, radius, useTheme, type ThemeColors } from '../theme'
+import { badgeLabelColor, badgeTint } from './badgeTone'
 
 const STATE_LABEL: Record<SessionState, MessageKey> = {
   waiting: 'session.waiting',
@@ -35,14 +36,14 @@ export function SessionStateBadge({ state }: { state: SessionState }) {
   const tone = toneFor(state, color)
 
   return (
-    <View style={[styles.badge, { backgroundColor: `${tone}1F` }]}>
-      <View style={[styles.dot, { backgroundColor: tone }]} />
-      <Text style={[styles.label, { color: tone }]}>{t(STATE_LABEL[state])}</Text>
+    <View style={[styles.badge, { backgroundColor: badgeTint(tone) }]}>
+      <View style={[styles.dot, { backgroundColor: tone }]} aria-hidden />
+      <Text style={[styles.label, { color: badgeLabelColor(color) }]}>{t(STATE_LABEL[state])}</Text>
     </View>
   )
 }
 
-// 색이 state에서 나오므로(테마 무관 구조) 시트는 정적으로 둔다
+// 배치·크기는 테마와 무관하므로 시트는 정적으로 두고, 색만 인라인으로 준다
 const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',

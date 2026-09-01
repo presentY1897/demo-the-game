@@ -12,6 +12,9 @@ import { CreateSessionForm } from './CreateSessionForm'
 /** 목록 자동 갱신 주기. 시청자 수가 늘어나는 게 보여야 "입장했다"를 눈으로 확인한다 */
 const LIST_REFETCH_MS = 5000
 
+/** S06 기준 3: 최소 터치 타깃 */
+const TOUCH_TARGET = 44
+
 function SessionRow({ session, onPress }: { session: SessionSummary; onPress: () => void }) {
   const t = useT()
   const styles = useThemedStyles(stylesFor)
@@ -19,10 +22,10 @@ function SessionRow({ session, onPress }: { session: SessionSummary; onPress: ()
   return (
     <Pressable style={styles.row} onPress={onPress} accessibilityRole="button">
       <View style={styles.rowMain}>
-        <Text style={styles.rowTitle} numberOfLines={1}>
-          {session.title}
-        </Text>
-        <Text style={styles.rowMeta} numberOfLines={1}>
+        {/* 한 줄 고정(numberOfLines)은 글자를 키우는 순간 곧 잘림이다 — 줄바꿈을 허용하고
+            행이 자라게 둔다 (S06 기준 4) */}
+        <Text style={styles.rowTitle}>{session.title}</Text>
+        <Text style={styles.rowMeta}>
           {session.speaker} · {session.sourceLang.toUpperCase()} →{' '}
           {session.targetLangs.map((lang) => lang.toUpperCase()).join(', ')}
         </Text>
@@ -34,7 +37,9 @@ function SessionRow({ session, onPress }: { session: SessionSummary; onPress: ()
           </Text>
         </View>
       </View>
-      <Text style={styles.chevron}>›</Text>
+      <Text style={styles.chevron} aria-hidden>
+        ›
+      </Text>
     </Pressable>
   )
 }
@@ -87,7 +92,7 @@ export function SessionListView() {
         <Pressable
           onPress={() => void sessionsQuery.refetch()}
           accessibilityRole="button"
-          hitSlop={8}
+          style={styles.refreshButton}
         >
           <Text style={styles.refresh}>{t('console.refresh')}</Text>
         </Pressable>
@@ -98,7 +103,11 @@ export function SessionListView() {
       {sessionsQuery.isError && (
         <View style={styles.errorBox}>
           <Text style={styles.errorText}>{t('console.loadFailed')}</Text>
-          <Pressable onPress={() => void sessionsQuery.refetch()} accessibilityRole="button">
+          <Pressable
+            onPress={() => void sessionsQuery.refetch()}
+            accessibilityRole="button"
+            style={styles.retry}
+          >
             <Text style={styles.retryText}>{t('common.retry')}</Text>
           </Pressable>
         </View>
@@ -119,7 +128,7 @@ const stylesFor = createThemedStyles((color) => ({
   intro: { gap: space[1] },
   subtitle: { fontSize: font.sm, color: color.textMuted },
   createButton: {
-    minHeight: 44,
+    minHeight: TOUCH_TARGET,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radius.md,
@@ -136,20 +145,29 @@ const stylesFor = createThemedStyles((color) => ({
     marginTop: space[2],
   },
   sectionLabel: { fontSize: font.xs, fontWeight: '700', color: color.textMuted },
+  refreshButton: {
+    minWidth: TOUCH_TARGET,
+    minHeight: TOUCH_TARGET,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
   refresh: { fontSize: font.xs, fontWeight: '600', color: color.primary },
   empty: { fontSize: font.sm, color: color.textMuted },
   errorBox: { flexDirection: 'row', alignItems: 'center', gap: space[3] },
   errorText: { fontSize: font.sm, color: color.danger },
+  retry: { minHeight: TOUCH_TARGET, justifyContent: 'center' },
   retryText: { fontSize: font.sm, fontWeight: '600', color: color.primary },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[3],
-    minHeight: 44,
+    minHeight: TOUCH_TARGET,
     padding: space[4],
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: color.border,
+    // 행 전체가 누르는 컨트롤이고, 라이트 모드에서는 surface와 bg가 같은 흰색이라
+    // 이 경계가 없으면 "누를 수 있는 것"이 보이지 않는다 (WCAG 1.4.11)
+    borderColor: color.borderStrong,
     backgroundColor: color.surface,
   },
   rowMain: { flex: 1, gap: space[1] },

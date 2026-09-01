@@ -14,7 +14,9 @@ export function RoleStep({ onPick }: { onPick: (role: ParticipantRole) => void }
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.title}>{t('onboarding.roleTitle')}</Text>
+      <Text style={styles.title} accessibilityRole="header" aria-level={2}>
+        {t('onboarding.roleTitle')}
+      </Text>
       <ActionButton
         label={t('home.startConversation')}
         hint={t('home.startConversationHint')}

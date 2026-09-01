@@ -8,12 +8,13 @@ import { createThemedStyles, font, space, useThemedStyles } from '../theme'
 /** 스테이지 모드 기본 타이포 — 히스토리 뷰(font.md=16)보다 크게 잡는다 */
 const SOURCE_SIZE = font['2xl']
 const SECONDARY_SIZE = font.xl
-const LINE_HEIGHT = 1.35
 
-const sized = (base: number, scale: number) => ({
-  fontSize: base * scale,
-  lineHeight: base * scale * LINE_HEIGHT,
-})
+/**
+ * 글자 크기만 준다. `lineHeight`를 숫자로 박으면 OS 글자 확대에서 잘린다 —
+ * RN은 `fontSize`만 fontScale로 키우고 `lineHeight`는 그대로 두기 때문이다.
+ * 이 화면은 자체 배율(A−/A＋)까지 겹치므로 특히 위험했다 (S06 기준 4).
+ */
+const sized = (base: number, scale: number) => ({ fontSize: base * scale })
 
 interface StageCaptionProps {
   view: StageView
@@ -41,11 +42,7 @@ export function StageCaption({ view, targetLang, scale }: StageCaptionProps) {
   const translation = latestFinal === null ? undefined : latestFinal.translations[targetLang]
 
   return (
-    <ScrollView
-      style={styles.stage}
-      contentContainerStyle={styles.stageContent}
-      accessibilityRole="summary"
-    >
+    <ScrollView style={styles.stage} contentContainerStyle={styles.stageContent}>
       {latestFinal !== null && (
         <>
           <Text style={[styles.source, sized(SOURCE_SIZE, scale)]}>{latestFinal.sourceText}</Text>

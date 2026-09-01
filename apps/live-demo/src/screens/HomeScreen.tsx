@@ -24,6 +24,9 @@ import {
 import { InfoSheet } from './home/InfoSheet'
 import { ResumeBanner } from './home/ResumeBanner'
 
+/** S06 기준 3: 최소 터치 타깃 */
+const TOUCH_TARGET = 44
+
 const SESSION_STATE_LABEL: Record<SessionState, MessageKey> = {
   waiting: 'session.waiting',
   playing: 'session.playing',
@@ -52,7 +55,7 @@ function SessionRow({ session, onPress }: { session: SessionSummary; onPress: ()
 
   return (
     <Pressable style={styles.sessionRow} onPress={onPress} accessibilityRole="button">
-      <View style={[styles.stateDot, { backgroundColor: tone }]} />
+      <View style={[styles.stateDot, { backgroundColor: tone }]} aria-hidden />
       <View style={styles.sessionInfo}>
         <Text style={styles.sessionTitle}>{session.title}</Text>
         <Text style={styles.sessionMeta}>
@@ -64,7 +67,9 @@ function SessionRow({ session, onPress }: { session: SessionSummary; onPress: ()
           {session.state === 'playing' && ` · ${t('home.viewers', { count: session.viewerCount })}`}
         </Text>
       </View>
-      <Text style={styles.chevron}>›</Text>
+      <Text style={styles.chevron} aria-hidden>
+        ›
+      </Text>
     </Pressable>
   )
 }
@@ -134,7 +139,11 @@ export function HomeScreen() {
         {sessionsQuery.isError && (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>{t('common.error')}</Text>
-            <Pressable onPress={() => void sessionsQuery.refetch()} accessibilityRole="button">
+            <Pressable
+              onPress={() => void sessionsQuery.refetch()}
+              accessibilityRole="button"
+              style={styles.retry}
+            >
               <Text style={styles.retryText}>{t('common.retry')}</Text>
             </Pressable>
           </View>
@@ -189,6 +198,7 @@ const stylesFor = createThemedStyles((color) => ({
   empty: { fontSize: font.sm, color: color.textMuted },
   errorBox: { flexDirection: 'row', alignItems: 'center', gap: space[3] },
   errorText: { color: color.danger, fontSize: font.sm },
+  retry: { minHeight: TOUCH_TARGET, justifyContent: 'center' },
   retryText: { color: color.primary, fontSize: font.sm, fontWeight: '600' },
   sessionRow: {
     flexDirection: 'row',
@@ -197,7 +207,7 @@ const stylesFor = createThemedStyles((color) => ({
     backgroundColor: color.surfaceSubtle,
     borderRadius: radius.md,
     padding: space[4],
-    minHeight: 44,
+    minHeight: TOUCH_TARGET,
   },
   stateDot: { width: 8, height: 8, borderRadius: radius.full },
   sessionInfo: { flex: 1, gap: 2 },
@@ -205,6 +215,11 @@ const stylesFor = createThemedStyles((color) => ({
   sessionMeta: { fontSize: font.xs, color: color.textMuted },
   sessionState: { fontSize: font.xs, fontWeight: '700' },
   chevron: { fontSize: font.xl, color: color.textMuted },
-  infoLink: { alignSelf: 'center', minHeight: 44, justifyContent: 'center', paddingHorizontal: space[4] },
+  infoLink: {
+    alignSelf: 'center',
+    minHeight: TOUCH_TARGET,
+    justifyContent: 'center',
+    paddingHorizontal: space[4],
+  },
   infoText: { fontSize: font.sm, color: color.textMuted, textDecorationLine: 'underline' },
 }))

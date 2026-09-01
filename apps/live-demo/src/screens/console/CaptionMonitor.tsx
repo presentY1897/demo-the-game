@@ -4,14 +4,22 @@ import { CaptionRow } from '../../components/CaptionRow'
 import { ConnectionBadge } from '../../components/ConnectionBadge'
 import { LiveCaptionLine } from '../../components/LiveCaptionLine'
 import { useCaptionStream } from '../../hooks/useCaptionStream'
-import { useT } from '../../i18n'
+import { languageLabel, useT } from '../../i18n'
 import { useCaptionStore, type CaptionEntry } from '../../stores/captionStore'
 import { createThemedStyles, font, radius, space, useThemedStyles } from '../../theme'
 
-/** 모니터는 운영 화면의 한 칸이라 높이를 고정하고 안에서만 스크롤한다 */
-const MONITOR_HEIGHT = 220
+/**
+ * 모니터는 운영 화면의 한 칸이라 안에서만 스크롤한다.
+ * 높이를 **고정**하지 않고 최소·최대로 준다 — OS 글자 확대에서 220pt 상자는 한 줄도
+ * 못 담고, 고정 높이는 그 자체로 잘림의 원인이다 (S06 기준 4).
+ */
+const MONITOR_MIN_HEIGHT = 220
+const MONITOR_MAX_HEIGHT = 420
 /** 상세 화면에는 제어·QR도 함께 있어 자막은 참가자 화면보다 조금 작게 */
 const MONITOR_SCALE = 0.9
+
+/** S06 기준 3: 최소 터치 타깃 */
+const TOUCH_TARGET = 44
 
 interface CaptionMonitorProps {
   sessionId: string
@@ -48,14 +56,19 @@ export function CaptionMonitor({ sessionId, targetLangs }: CaptionMonitorProps) 
   return (
     <View style={styles.wrap}>
       <View style={styles.header}>
-        <View style={styles.langChips}>
+        <View
+          style={styles.langChips}
+          accessibilityRole="radiogroup"
+          accessibilityLabel={t('console.monitor.language')}
+        >
           {targetLangs.map((code) => (
             <Pressable
               key={code}
               onPress={() => setLang(code)}
-              accessibilityRole="button"
-              accessibilityLabel={t('console.monitor.language')}
-              accessibilityState={{ selected: lang === code }}
+              accessibilityRole="radio"
+              // 전에는 칩 셋이 모두 "미리보기 언어"라는 같은 이름이었다 — 구분되지 않는다
+              accessibilityLabel={languageLabel(t, code)}
+              aria-checked={lang === code}
               style={[styles.chip, lang === code && styles.chipActive]}
             >
               <Text style={[styles.chipText, lang === code && styles.chipTextActive]}>
@@ -101,6 +114,10 @@ const stylesFor = createThemedStyles((color) => ({
   },
   langChips: { flexDirection: 'row', gap: space[2] },
   chip: {
+    minWidth: TOUCH_TARGET,
+    minHeight: TOUCH_TARGET,
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: space[3],
     paddingVertical: 6,
     borderRadius: radius.full,
@@ -110,7 +127,8 @@ const stylesFor = createThemedStyles((color) => ({
   chipText: { fontSize: font.xs, fontWeight: '600', color: color.textMuted },
   chipTextActive: { color: color.onPrimary },
   viewport: {
-    height: MONITOR_HEIGHT,
+    minHeight: MONITOR_MIN_HEIGHT,
+    maxHeight: MONITOR_MAX_HEIGHT,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: color.border,

@@ -30,16 +30,24 @@ export function StaffWaiting({
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.wrap}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t('room.waitingTitle')}</Text>
+        <Text style={styles.title} accessibilityRole="header" aria-level={2}>
+          {t('room.waitingTitle')}
+        </Text>
         <ConnectionBadge status={status} />
       </View>
       <Text style={styles.hint}>{t('room.waitingHint')}</Text>
 
-      <View style={styles.codeBox}>
+      {/* 코드는 한 덩어리로, 그러나 **한 글자씩** 읽혀야 받아 적을 수 있다.
+          role=img로 묶어야 안의 글자가 낱개로 다시 읽히지 않고, 웹에서도
+          이름(aria-label)이 허용되는 role이 된다 — role 없는 div의 aria-label은 무효다. */}
+      <View
+        style={styles.codeBox}
+        accessible
+        accessibilityRole="image"
+        accessibilityLabel={`${t('room.inviteCode')} ${inviteCode.split('').join(' ')}`}
+      >
         <Text style={styles.codeLabel}>{t('room.inviteCode')}</Text>
-        <Text style={styles.code} accessibilityLabel={inviteCode.split('').join(' ')}>
-          {inviteCode}
-        </Text>
+        <Text style={styles.code}>{inviteCode}</Text>
       </View>
 
       <QrCode value={url} />

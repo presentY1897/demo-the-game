@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import type { ConnectionStatus } from '@thegame/realtime'
 import { useT } from '../i18n'
 import { font, radius, useTheme, type ThemeColors } from '../theme'
+import { badgeLabelColor, badgeTint } from './badgeTone'
 
 const toneFor = (status: ConnectionStatus, color: ThemeColors): string => {
   switch (status.state) {
@@ -27,14 +28,15 @@ export function ConnectionBadge({ status }: { status: ConnectionStatus }) {
       : t(`connection.${status.state}`)
 
   return (
-    <View style={[styles.badge, { backgroundColor: `${tone}1F` }]}>
-      <View style={[styles.dot, { backgroundColor: tone }]} />
-      <Text style={[styles.label, { color: tone }]}>{label}</Text>
+    <View style={[styles.badge, { backgroundColor: badgeTint(tone) }]}>
+      {/* 점은 상태를 색으로 되풀이할 뿐이라 스크린리더에는 내지 않는다 */}
+      <View style={[styles.dot, { backgroundColor: tone }]} aria-hidden />
+      <Text style={[styles.label, { color: badgeLabelColor(color) }]}>{label}</Text>
     </View>
   )
 }
 
-// 색이 status에서 나오므로(테마 무관 구조) 시트는 정적으로 둔다
+// 배치·크기는 테마와 무관하므로 시트는 정적으로 두고, 색만 인라인으로 준다
 const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',

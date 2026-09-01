@@ -13,6 +13,8 @@ export const ko = {
     close: '닫기',
     error: '문제가 발생했습니다',
     comingSoon: '준비 중',
+    back: '뒤로',
+    switchLanguage: '언어 전환',
   },
   nav: {
     home: '홈',
@@ -41,6 +43,8 @@ export const ko = {
   caption: {
     language: '언어',
     fontSize: '글자 크기',
+    fontSmaller: '자막 글자 작게',
+    fontLarger: '자막 글자 크게',
     autoScroll: '자동 스크롤',
     paused: '일시정지됨 — 새 자막이 대기 중입니다',
     resume: '계속 보기',
@@ -51,6 +55,7 @@ export const ko = {
   },
   conversation: {
     inputPlaceholder: '메시지를 입력하세요…',
+    inputLabel: '메시지',
     send: '보내기',
     staff: '의료진',
     patient: '환자',

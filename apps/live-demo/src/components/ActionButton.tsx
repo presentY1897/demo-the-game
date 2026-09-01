@@ -30,7 +30,9 @@ export function ActionButton({
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
-      accessibilityState={{ disabled }}
+      // react-native-web 0.21은 `accessibilityState`를 DOM으로 옮기지 않는다(측정으로 확인).
+      // `aria-*`는 RN 네이티브·웹 양쪽이 읽으므로 상태는 이 형태로 준다 (S06 구현 메모).
+      aria-disabled={disabled}
       {...(accessibilityLabel === undefined ? {} : { accessibilityLabel })}
       style={[
         styles.button,
@@ -59,11 +61,13 @@ const stylesFor = createThemedStyles((color) => ({
     borderRadius: radius.md,
   },
   buttonPrimary: { backgroundColor: color.primary },
-  buttonSecondary: { backgroundColor: color.surfaceSubtle, borderWidth: 1, borderColor: color.border },
+  // 경계가 곧 버튼의 윤곽이다 — 장식용 hairline이 아니라 컨트롤 경계라 borderStrong (WCAG 1.4.11)
+  buttonSecondary: { backgroundColor: color.surfaceSubtle, borderWidth: 1, borderColor: color.borderStrong },
   buttonDisabled: { opacity: 0.5 },
   label: { fontSize: font.md, fontWeight: '700' },
   labelPrimary: { color: color.onPrimary },
   labelSecondary: { color: color.text },
   hint: { fontSize: font.xs, color: color.textMuted, marginTop: 2 },
-  hintPrimary: { color: `${color.onPrimary}C0` },
+  // 75%(C0)는 primary 위에서 4.48:1로 AA 미달이었다(axe 실측) → 85%로 올려 5.26(라이트)/5.39(다크)
+  hintPrimary: { color: `${color.onPrimary}D9` },
 }))

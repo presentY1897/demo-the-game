@@ -55,7 +55,9 @@ export function StaffCreateStep({ lang, inviteCode }: { lang: string; inviteCode
   if (failure !== null) {
     return (
       <View style={styles.wrap}>
-        <Text style={styles.error}>{t('room.createFailed')}</Text>
+        <Text style={styles.error} accessibilityRole="alert">
+          {t('room.createFailed')}
+        </Text>
         <Text style={styles.detail}>{failure}</Text>
         <ActionButton
           label={t('common.retry')}

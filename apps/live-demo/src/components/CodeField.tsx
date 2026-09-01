@@ -53,6 +53,9 @@ export function CodeField({
           onPress={onSubmit}
           disabled={busy}
           accessibilityRole="button"
+          // busy일 때 안에는 스피너뿐이라 라벨이 없으면 이름 없는 버튼이 된다
+          accessibilityLabel={submitLabel}
+          aria-disabled={busy}
           style={[styles.submit, busy && styles.submitBusy]}
         >
           {busy ? (
@@ -72,9 +75,11 @@ const stylesFor = createThemedStyles((color) => ({
   row: { flexDirection: 'row', gap: space[2] },
   input: {
     flex: 1,
+    // 글자를 키우면 <input>의 고유 폭이 커져 행이 화면 밖으로 밀린다 — 줄어들 수 있게 (1.4.10)
+    minWidth: 0,
     minHeight: 44,
     borderWidth: 1,
-    borderColor: color.border,
+    borderColor: color.borderStrong,
     borderRadius: radius.md,
     paddingHorizontal: space[4],
     paddingVertical: 10,

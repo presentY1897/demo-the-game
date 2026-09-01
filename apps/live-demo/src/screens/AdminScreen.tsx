@@ -11,7 +11,9 @@ function ScopeNote() {
 
   return (
     <View style={styles.note}>
-      <Text style={styles.noteTitle}>{t('admin.scopeTitle')}</Text>
+      <Text style={styles.noteTitle} accessibilityRole="header" aria-level={2}>
+        {t('admin.scopeTitle')}
+      </Text>
       <Text style={styles.noteBody}>{t('admin.scopeAuth')}</Text>
       <Text style={styles.noteBody}>{t('admin.scopePrivacy')}</Text>
     </View>
@@ -48,5 +50,6 @@ const stylesFor = createThemedStyles((color) => ({
     backgroundColor: color.surfaceSubtle,
   },
   noteTitle: { fontSize: font.xs, fontWeight: '700', color: color.textMuted },
-  noteBody: { fontSize: font.xs, color: color.textMuted, lineHeight: font.md },
+  // lineHeight를 숫자로 고정하면 OS 글자 확대에서 문단이 잘린다 (S06 기준 4)
+  noteBody: { fontSize: font.xs, color: color.textMuted },
 }))

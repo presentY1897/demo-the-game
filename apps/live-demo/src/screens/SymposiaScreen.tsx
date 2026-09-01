@@ -7,11 +7,14 @@ import { KeepScreenAwake } from '../components/KeepScreenAwake'
 import { LiveCaptionLine } from '../components/LiveCaptionLine'
 import { LiveStageCaption } from '../components/StageCaption'
 import { useCaptionStream } from '../hooks/useCaptionStream'
-import { useT } from '../i18n'
+import { languageLabel, useT } from '../i18n'
 import { useNav } from '../navigation'
 import { useCaptionStore, type CaptionEntry } from '../stores/captionStore'
 import { useStageMode } from '../stores/stageStore'
 import { createThemedStyles, font, radius, space, useThemedStyles } from '../theme'
+
+/** S06 기준 3: 최소 터치 타깃 */
+const TOUCH_TARGET = 44
 
 const FONT_SCALE_MIN = 0.85
 const FONT_SCALE_MAX = 1.6
@@ -70,21 +73,27 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
 
       <View style={styles.toolbar}>
         <View style={styles.sessionInfo}>
-          <Text style={styles.sessionTitle} numberOfLines={1}>
-            {session?.title ?? t('common.loading')}
-          </Text>
+          {/* 글자를 키우면 한 줄 고정은 곧 잘림이다 — 줄바꿈을 허용한다 (S06 기준 4) */}
+          <Text style={styles.sessionTitle}>{session?.title ?? t('common.loading')}</Text>
           {session && <Text style={styles.speaker}>{session.speaker}</Text>}
         </View>
         <ConnectionBadge status={status} />
       </View>
 
       <View style={styles.controls}>
-        <View style={styles.langChips}>
+        <View
+          style={styles.langChips}
+          accessibilityRole="radiogroup"
+          accessibilityLabel={t('caption.language')}
+        >
           {languages.map((code) => (
             <Pressable
               key={code}
               onPress={() => setLang(code)}
-              accessibilityRole="button"
+              accessibilityRole="radio"
+              // 칩에는 코드(EN)만 보이지만 읽어줄 이름은 언어 이름이어야 한다
+              accessibilityLabel={languageLabel(t, code)}
+              aria-checked={lang === code}
               style={[styles.chip, lang === code && styles.chipActive]}
             >
               <Text style={[styles.chipText, lang === code && styles.chipTextActive]}>
@@ -97,7 +106,7 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
           <Pressable
             onPress={toggleStage}
             accessibilityRole="switch"
-            accessibilityState={{ checked: stage }}
+            aria-checked={stage}
             accessibilityLabel={t('caption.stageMode')}
             accessibilityHint={t('caption.stageModeHint')}
             style={[styles.stageToggle, stage && styles.stageToggleActive]}
@@ -106,20 +115,25 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
               {t('caption.stageMode')}
             </Text>
           </Pressable>
+          {/* "A−"/"A＋"는 번역할 문장이 아니라 글자 크기를 뜻하는 기호다 — ko/en이 같고
+              사전에 넣으면 로케일마다 달라질 수 있는 값이 된다. 대신 스크린리더가 읽을
+              이름을 accessibilityLabel로 따로 준다(두 버튼이 서로 다른 이름을 갖는다). */}
           <Pressable
             onPress={() => setScale((value) => Math.max(FONT_SCALE_MIN, value - FONT_SCALE_STEP))}
             accessibilityRole="button"
-            accessibilityLabel={t('caption.fontSize')}
+            accessibilityLabel={t('caption.fontSmaller')}
             style={styles.fontButton}
           >
+            {/* eslint-disable-next-line @thegame/no-hardcoded-ui-string -- 타이포 기호(위 주석) */}
             <Text style={styles.fontButtonText}>A−</Text>
           </Pressable>
           <Pressable
             onPress={() => setScale((value) => Math.min(FONT_SCALE_MAX, value + FONT_SCALE_STEP))}
             accessibilityRole="button"
-            accessibilityLabel={t('caption.fontSize')}
+            accessibilityLabel={t('caption.fontLarger')}
             style={styles.fontButton}
           >
+            {/* eslint-disable-next-line @thegame/no-hardcoded-ui-string -- 타이포 기호(위 주석) */}
             <Text style={styles.fontButtonText}>A＋</Text>
           </Pressable>
         </View>
@@ -185,7 +199,11 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
       {ended && reviewing && (
         <View style={styles.endedBanner}>
           <Text style={styles.endedText}>{t('caption.sessionEnded')}</Text>
-          <Pressable onPress={() => navigate({ name: 'home' })} accessibilityRole="button">
+          <Pressable
+            onPress={() => navigate({ name: 'home' })}
+            accessibilityRole="button"
+            style={styles.bannerAction}
+          >
             <Text style={styles.endedLink}>{t('console.ended.home')}</Text>
           </Pressable>
         </View>
@@ -194,7 +212,11 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
       {closed && (
         <View style={styles.closedBanner}>
           <Text style={styles.closedText}>{t('connection.closed')}</Text>
-          <Pressable onPress={() => setRetryToken((token) => token + 1)} accessibilityRole="button">
+          <Pressable
+            onPress={() => setRetryToken((token) => token + 1)}
+            accessibilityRole="button"
+            style={styles.bannerAction}
+          >
             <Text style={styles.retryText}>{t('common.retry')}</Text>
           </Pressable>
         </View>
@@ -227,6 +249,10 @@ const stylesFor = createThemedStyles((color) => ({
   },
   langChips: { flexDirection: 'row', gap: space[2] },
   chip: {
+    minWidth: TOUCH_TARGET,
+    minHeight: TOUCH_TARGET,
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: space[3],
     paddingVertical: 6,
     borderRadius: radius.full,
@@ -237,6 +263,8 @@ const stylesFor = createThemedStyles((color) => ({
   chipTextActive: { color: color.onPrimary },
   rightControls: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
   stageToggle: {
+    minHeight: TOUCH_TARGET,
+    justifyContent: 'center',
     paddingHorizontal: space[3],
     paddingVertical: 6,
     borderRadius: radius.full,
@@ -246,6 +274,10 @@ const stylesFor = createThemedStyles((color) => ({
   stageToggleText: { fontSize: font.xs, fontWeight: '600', color: color.textMuted },
   stageToggleTextActive: { color: color.onPrimary },
   fontButton: {
+    minWidth: TOUCH_TARGET,
+    minHeight: TOUCH_TARGET,
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: space[3],
     paddingVertical: 6,
     borderRadius: radius.md,
@@ -277,6 +309,8 @@ const stylesFor = createThemedStyles((color) => ({
     position: 'absolute',
     bottom: space[6],
     alignSelf: 'center',
+    minHeight: TOUCH_TARGET,
+    justifyContent: 'center',
     backgroundColor: color.primary,
     paddingHorizontal: space[4],
     paddingVertical: space[2],
@@ -313,6 +347,7 @@ const stylesFor = createThemedStyles((color) => ({
     gap: space[3],
     padding: space[3],
   },
+  bannerAction: { minHeight: TOUCH_TARGET, justifyContent: 'center', paddingHorizontal: space[2] },
   endedText: { color: color.textMuted, fontSize: font.sm },
   endedLink: { color: color.primary, fontSize: font.sm, fontWeight: '700' },
   closedBanner: {

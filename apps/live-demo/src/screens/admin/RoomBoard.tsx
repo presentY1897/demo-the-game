@@ -26,6 +26,9 @@ import {
 /** 이 폭 아래에서는 표 대신 카드로 접는다 — 관리자는 데스크톱, 리뷰어는 폰으로 본다 */
 const TABLE_BREAKPOINT = 720
 
+/** S06 기준 3: 최소 터치 타깃 */
+const TOUCH_TARGET = 44
+
 /** 폴링 사이에도 "마지막 활동"이 흘러야 갱신되고 있다는 게 보인다 */
 function useNow(intervalMs: number): number {
   const [now, setNow] = useState(() => Date.now())
@@ -66,7 +69,7 @@ function StatusBadge({ status }: { status: RoomStatus }) {
 
   return (
     <View style={[styles.badge, { borderColor: tone }]}>
-      <View style={[styles.badgeDot, { backgroundColor: tone }]} />
+      <View style={[styles.badgeDot, { backgroundColor: tone }]} aria-hidden />
       <Text style={[styles.badgeText, { color: tone }]}>{t(ROOM_STATUS_LABEL[status])}</Text>
     </View>
   )
@@ -179,7 +182,9 @@ export function RoomBoard() {
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{t('admin.roomsTitle')}</Text>
+      <Text style={styles.sectionTitle} accessibilityRole="header" aria-level={2}>
+        {t('admin.roomsTitle')}
+      </Text>
       <Text style={styles.sectionHint}>{t('admin.roomsHint')}</Text>
       {query.data !== undefined && (
         <Text style={styles.sectionMeta}>
@@ -221,7 +226,7 @@ export function RoomBoard() {
           <Pressable
             onPress={() => setShowEnded((value) => !value)}
             accessibilityRole="button"
-            accessibilityState={{ expanded: showEnded }}
+            aria-expanded={showEnded}
             style={styles.endedToggle}
           >
             <Text style={styles.endedToggleText}>
@@ -262,7 +267,7 @@ const stylesFor = createThemedStyles((color) => ({
   },
   errorText: { fontSize: font.sm, fontWeight: '600', color: color.danger },
   errorDetail: { fontSize: font.xs, color: color.textMuted },
-  retry: { minHeight: 44, justifyContent: 'center' },
+  retry: { minHeight: TOUCH_TARGET, justifyContent: 'center' },
   retryText: { fontSize: font.sm, fontWeight: '600', color: color.primary },
   headerRow: {
     flexDirection: 'row',
@@ -277,7 +282,7 @@ const stylesFor = createThemedStyles((color) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[3],
-    minHeight: 44,
+    minHeight: TOUCH_TARGET,
     paddingHorizontal: space[3],
     paddingVertical: space[2],
     borderRadius: radius.md,
@@ -311,6 +316,6 @@ const stylesFor = createThemedStyles((color) => ({
   badgeDot: { width: 6, height: 6, borderRadius: radius.full },
   badgeText: { fontSize: font.xs, fontWeight: '700' },
   endedBlock: { gap: space[2], marginTop: space[2] },
-  endedToggle: { minHeight: 44, justifyContent: 'center' },
+  endedToggle: { minHeight: TOUCH_TARGET, justifyContent: 'center', alignSelf: 'flex-start' },
   endedToggleText: { fontSize: font.sm, fontWeight: '600', color: color.primary },
 }))

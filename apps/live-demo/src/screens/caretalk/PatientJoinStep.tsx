@@ -55,7 +55,9 @@ export function PatientJoinStep({ lang, initialCode }: { lang: string; initialCo
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.title}>{t('room.codeTitle')}</Text>
+      <Text style={styles.title} accessibilityRole="header" aria-level={2}>
+        {t('room.codeTitle')}
+      </Text>
       <CodeField
         value={code}
         onChangeText={(next) => setCode(next.toUpperCase())}

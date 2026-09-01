@@ -16,6 +16,9 @@ import { consoleErrorMessage } from './errors'
  */
 const TEMPLATE_LANGS = ['ko', 'en', 'ja', 'zh'] as const
 
+/** S06 기준 3: 최소 터치 타깃 */
+const TOUCH_TARGET = 44
+
 const DEFAULT_SOURCE = 'ko'
 const DEFAULT_TARGETS = ['en', 'ja', 'zh']
 
@@ -89,7 +92,9 @@ export function CreateSessionForm({ onCreated, onCancel }: CreateSessionFormProp
 
   return (
     <View style={styles.card}>
-      <Text style={styles.heading}>{t('console.create.title')}</Text>
+      <Text style={styles.heading} accessibilityRole="header" aria-level={2}>
+        {t('console.create.title')}
+      </Text>
 
       <View style={styles.field}>
         <Text style={styles.label}>{t('console.create.name')}</Text>
@@ -119,7 +124,11 @@ export function CreateSessionForm({ onCreated, onCancel }: CreateSessionFormProp
 
       <View style={styles.field}>
         <Text style={styles.label}>{t('console.create.sourceLang')}</Text>
-        <View style={styles.chips}>
+        <View
+          style={styles.chips}
+          accessibilityRole="radiogroup"
+          accessibilityLabel={t('console.create.sourceLang')}
+        >
           {TEMPLATE_LANGS.map((lang) => {
             const selected = sourceLang === lang
             return (
@@ -127,7 +136,7 @@ export function CreateSessionForm({ onCreated, onCancel }: CreateSessionFormProp
                 key={lang}
                 onPress={() => pickSource(lang)}
                 accessibilityRole="radio"
-                accessibilityState={{ selected }}
+                aria-checked={selected}
                 style={[styles.chip, selected && styles.chipActive]}
               >
                 <Text style={[styles.chipText, selected && styles.chipTextActive]}>
@@ -141,7 +150,11 @@ export function CreateSessionForm({ onCreated, onCancel }: CreateSessionFormProp
 
       <View style={styles.field}>
         <Text style={styles.label}>{t('console.create.targetLangs')}</Text>
-        <View style={styles.chips}>
+        <View
+          style={styles.chips}
+          role="group"
+          accessibilityLabel={t('console.create.targetLangs')}
+        >
           {TEMPLATE_LANGS.filter((lang) => lang !== sourceLang).map((lang) => {
             const selected = targetLangs.includes(lang)
             return (
@@ -149,7 +162,7 @@ export function CreateSessionForm({ onCreated, onCancel }: CreateSessionFormProp
                 key={lang}
                 onPress={() => toggleTarget(lang)}
                 accessibilityRole="checkbox"
-                accessibilityState={{ checked: selected }}
+                aria-checked={selected}
                 style={[styles.chip, selected && styles.chipActive]}
               >
                 <Text style={[styles.chipText, selected && styles.chipTextActive]}>
@@ -162,13 +175,19 @@ export function CreateSessionForm({ onCreated, onCancel }: CreateSessionFormProp
         <Text style={styles.hint}>{t('console.create.targetHint')}</Text>
       </View>
 
-      {error !== null && <Text style={styles.error}>{error}</Text>}
+      {/* 폼 오류는 조용히 나타나면 안 된다 — 스크린리더에도 알린다 */}
+      {error !== null && (
+        <Text style={styles.error} accessibilityRole="alert">
+          {error}
+        </Text>
+      )}
 
       <View style={styles.actions}>
         <Pressable
           onPress={onCancel}
           disabled={busy}
           accessibilityRole="button"
+          aria-disabled={busy}
           style={[styles.secondaryButton, busy && styles.buttonDisabled]}
         >
           <Text style={styles.secondaryText}>{t('console.create.cancel')}</Text>
@@ -177,7 +196,9 @@ export function CreateSessionForm({ onCreated, onCancel }: CreateSessionFormProp
           onPress={submit}
           disabled={busy}
           accessibilityRole="button"
-          accessibilityState={{ disabled: busy }}
+          // busy일 때 안에는 스피너뿐이라 라벨이 없으면 이름 없는 버튼이 된다
+          accessibilityLabel={t('console.create.submit')}
+          aria-disabled={busy}
           style={[styles.primaryButton, busy && styles.buttonDisabled]}
         >
           {busy ? (
@@ -204,9 +225,10 @@ const stylesFor = createThemedStyles((color) => ({
   field: { gap: space[2] },
   label: { fontSize: font.xs, fontWeight: '700', color: color.textMuted },
   input: {
-    minHeight: 44,
+    minWidth: 0,
+    minHeight: TOUCH_TARGET,
     borderWidth: 1,
-    borderColor: color.border,
+    borderColor: color.borderStrong,
     borderRadius: radius.md,
     paddingHorizontal: space[4],
     paddingVertical: 10,
@@ -216,13 +238,14 @@ const stylesFor = createThemedStyles((color) => ({
   },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space[2] },
   chip: {
-    minHeight: 36,
+    minHeight: TOUCH_TARGET,
     justifyContent: 'center',
     paddingHorizontal: space[4],
     borderRadius: radius.full,
     backgroundColor: color.surfaceSubtle,
     borderWidth: 1,
-    borderColor: color.border,
+    // 고르는 칩의 경계 — 컨트롤 경계다 (WCAG 1.4.11)
+    borderColor: color.borderStrong,
   },
   chipActive: { backgroundColor: color.primary, borderColor: color.primary },
   chipText: { fontSize: font.sm, fontWeight: '600', color: color.textMuted },
@@ -231,7 +254,7 @@ const stylesFor = createThemedStyles((color) => ({
   error: { fontSize: font.sm, color: color.danger },
   actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: space[2] },
   primaryButton: {
-    minHeight: 44,
+    minHeight: TOUCH_TARGET,
     minWidth: 120,
     alignItems: 'center',
     justifyContent: 'center',
@@ -241,13 +264,13 @@ const stylesFor = createThemedStyles((color) => ({
   },
   primaryText: { fontSize: font.sm, fontWeight: '700', color: color.onPrimary },
   secondaryButton: {
-    minHeight: 44,
+    minHeight: TOUCH_TARGET,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: space[4],
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: color.border,
+    borderColor: color.borderStrong,
     backgroundColor: color.surfaceSubtle,
   },
   secondaryText: { fontSize: font.sm, fontWeight: '600', color: color.text },

@@ -51,7 +51,7 @@ export function QuickReplyBar({
           onPress={onToggle}
           style={styles.toggle}
           accessibilityRole="button"
-          accessibilityState={{ expanded: !collapsed }}
+          aria-expanded={!collapsed}
           accessibilityLabel={collapsed ? t('quickReply.expand') : t('quickReply.collapse')}
         >
           <Text style={styles.toggleText}>
@@ -140,7 +140,8 @@ const stylesFor = createThemedStyles((color) => ({
     paddingVertical: space[2],
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: color.border,
+    // 칩 하나하나가 누르는 컨트롤이다 — 경계가 곧 그 컨트롤의 윤곽 (WCAG 1.4.11)
+    borderColor: color.borderStrong,
     backgroundColor: color.surfaceSubtle,
   },
   chipPressed: { borderColor: color.primary, backgroundColor: color.primarySubtle },

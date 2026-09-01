@@ -24,7 +24,9 @@ export function LanguageStep({ role, selected, onSelect, onContinue }: LanguageS
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.title}>{t('onboarding.languageTitle')}</Text>
+      <Text style={styles.title} accessibilityRole="header" aria-level={2}>
+        {t('onboarding.languageTitle')}
+      </Text>
       <Text style={styles.hint}>
         {role === 'patient' ? t('onboarding.patientLanguageHint') : t('onboarding.staffLanguageHint')}
       </Text>
@@ -33,7 +35,11 @@ export function LanguageStep({ role, selected, onSelect, onContinue }: LanguageS
           기다렸다가 한 번만 그린다 */}
       {loading && <ActivityIndicator color={color.primary} />}
 
-      <ScrollView contentContainerStyle={styles.options}>
+      <ScrollView
+        contentContainerStyle={styles.options}
+        accessibilityRole="radiogroup"
+        accessibilityLabel={t('onboarding.languageTitle')}
+      >
         {!loading && options.map((code) => {
           const active = code === selected
           return (
@@ -41,7 +47,8 @@ export function LanguageStep({ role, selected, onSelect, onContinue }: LanguageS
               key={code}
               onPress={() => onSelect(code)}
               accessibilityRole="radio"
-              accessibilityState={{ selected: active }}
+              // radio는 aria-checked가 필수다. accessibilityState는 웹으로 넘어가지 않는다.
+              aria-checked={active}
               style={[styles.option, active && styles.optionActive]}
             >
               <Text style={[styles.optionText, active && styles.optionTextActive]}>
@@ -68,7 +75,8 @@ const stylesFor = createThemedStyles((color) => ({
     paddingHorizontal: space[4],
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: color.border,
+    // 고를 수 있는 항목의 경계다 — 장식이 아니라 컨트롤 경계 (WCAG 1.4.11)
+    borderColor: color.borderStrong,
     backgroundColor: color.surface,
   },
   optionActive: { borderColor: color.primary, backgroundColor: color.primarySubtle },

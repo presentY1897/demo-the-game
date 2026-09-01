@@ -7,6 +7,9 @@ import { createThemedStyles, font, radius, space, useThemedStyles } from '../../
  * "이어서 돌아가기" 제안. 자동으로 이동하지 않는 게 핵심이다 —
  * 다른 세션을 보러 온 사람을 지난 방으로 끌고 가지 않는다(S03).
  */
+/** S06 기준 3: 최소 터치 타깃 */
+const TOUCH_TARGET = 44
+
 interface ResumeBannerProps {
   route: Route
   onResume: () => void
@@ -31,7 +34,12 @@ export function ResumeBanner({ route, onResume, onDismiss }: ResumeBannerProps) 
       <Pressable style={styles.main} onPress={onResume} accessibilityRole="button">
         <Text style={styles.label}>{label}</Text>
       </Pressable>
-      <Pressable onPress={onDismiss} accessibilityRole="button" hitSlop={12}>
+      <Pressable
+        onPress={onDismiss}
+        accessibilityRole="button"
+        hitSlop={12}
+        style={styles.dismissButton}
+      >
         <Text style={styles.dismiss}>{t('home.resumeDismiss')}</Text>
       </Pressable>
     </View>
@@ -49,7 +57,13 @@ const stylesFor = createThemedStyles((color) => ({
     borderWidth: 1,
     borderColor: color.primary,
   },
-  main: { flex: 1, minHeight: 28, justifyContent: 'center' },
+  main: { flex: 1, minHeight: TOUCH_TARGET, justifyContent: 'center' },
   label: { fontSize: font.sm, fontWeight: '700', color: color.primary },
+  dismissButton: {
+    minWidth: TOUCH_TARGET,
+    minHeight: TOUCH_TARGET,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
   dismiss: { fontSize: font.xs, color: color.textMuted },
 }))

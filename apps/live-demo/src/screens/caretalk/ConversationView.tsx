@@ -18,6 +18,9 @@ import { createThemedStyles, font, radius, space, useTheme, useThemedStyles } fr
 import { QuickReplyBar } from './QuickReplyBar'
 import { createQuickReplyHandlers, nextCollapsed } from './quickReply'
 
+/** S06 기준 3: 최소 터치 타깃 */
+const TOUCH_TARGET = 44
+
 function MessageBubble({ message, myRole }: { message: ChatMessage; myRole: ParticipantRole }) {
   const styles = useThemedStyles(stylesFor)
   const mine = message.role === myRole
@@ -132,6 +135,7 @@ export function ConversationView({ myRole, myLang, say, notifyTyping }: Conversa
           }}
           placeholder={t('conversation.inputPlaceholder')}
           placeholderTextColor={color.textMuted}
+          accessibilityLabel={t('conversation.inputLabel')}
           onSubmitEditing={submit}
           returnKeyType="send"
           // 키보드가 올라오면 칩이 대화를 가린다 — 포커스에 맞춰 접고, 초안 없이
@@ -144,6 +148,7 @@ export function ConversationView({ myRole, myLang, say, notifyTyping }: Conversa
           onPress={submit}
           disabled={draft.trim() === ''}
           accessibilityRole="button"
+          aria-disabled={draft.trim() === ''}
         >
           <Text style={styles.sendText}>{t('conversation.send')}</Text>
         </Pressable>
@@ -179,7 +184,8 @@ const stylesFor = createThemedStyles((color) => ({
   bubbleText: { fontSize: font.md, color: color.text },
   bubbleTextMine: { color: color.onPrimary },
   translation: { fontSize: font.sm, color: color.textMuted },
-  translationMine: { color: `${color.onPrimary}C0` },
+  // 75%(C0)는 primary 말풍선 위 4.5:1 미달이었다 → 85% (라이트 5.26 / 다크 5.39)
+  translationMine: { color: `${color.onPrimary}D9` },
   typing: {
     paddingHorizontal: space[5],
     paddingBottom: space[2],
@@ -201,9 +207,11 @@ const stylesFor = createThemedStyles((color) => ({
   },
   input: {
     flex: 1,
-    minHeight: 44,
+    // 글자를 키우면 <input>의 고유 폭이 행을 화면 밖으로 밀어낸다 (1.4.10 리플로)
+    minWidth: 0,
+    minHeight: TOUCH_TARGET,
     borderWidth: 1,
-    borderColor: color.border,
+    borderColor: color.borderStrong,
     borderRadius: radius.md,
     paddingHorizontal: space[4],
     paddingVertical: 10,
@@ -212,6 +220,7 @@ const stylesFor = createThemedStyles((color) => ({
     backgroundColor: color.surface,
   },
   sendButton: {
+    minHeight: TOUCH_TARGET,
     backgroundColor: color.primary,
     borderRadius: radius.md,
     paddingHorizontal: space[5],

@@ -14,6 +14,9 @@ import { createThemedStyles, font, radius, space, useThemedStyles } from '../../
 import { CaptionMonitor } from './CaptionMonitor'
 import { consoleErrorMessage } from './errors'
 
+/** S06 기준 3: 최소 터치 타깃 */
+const TOUCH_TARGET = 44
+
 /** 1 → "1.0", 0.5 → "0.5", 1.25 → "1.25". 정수 배속도 소수점을 달아 자릿수가 튀지 않게 */
 function formatRate(rate: number): string {
   return Number.isInteger(rate) ? rate.toFixed(1) : String(rate)
@@ -49,7 +52,7 @@ function ControlButton({
       onPress={onPress}
       disabled={!enabled}
       accessibilityRole="button"
-      accessibilityState={{ disabled: !enabled }}
+      aria-disabled={!enabled}
       {...(accessibilityLabel === undefined ? {} : { accessibilityLabel })}
       style={[
         styles.control,
@@ -101,12 +104,14 @@ export function SessionDetailView({ session }: { session: SessionSummary }) {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <Pressable onPress={close} accessibilityRole="button" style={styles.backRow} hitSlop={8}>
+      <Pressable onPress={close} accessibilityRole="button" style={styles.backRow}>
         <Text style={styles.backText}>‹ {t('console.detail.back')}</Text>
       </Pressable>
 
       <View style={styles.headerBlock}>
-        <Text style={styles.title}>{session.title}</Text>
+        <Text style={styles.title} accessibilityRole="header" aria-level={2}>
+          {session.title}
+        </Text>
         <Text style={styles.speaker}>
           {session.speaker} · {session.sourceLang.toUpperCase()} →{' '}
           {session.targetLangs.map((lang) => lang.toUpperCase()).join(', ')}
@@ -122,9 +127,9 @@ export function SessionDetailView({ session }: { session: SessionSummary }) {
       {/* 입장 — 코드와 QR이 한 화면에 있어야 장내 게시와 구두 안내를 동시에 한다 */}
       <View style={styles.card}>
         <Text style={styles.sectionLabel}>{t('console.detail.entryTitle')}</Text>
-        <Text style={styles.code} accessibilityLabel={session.id.toUpperCase()}>
-          {session.id.toUpperCase()}
-        </Text>
+        {/* 라벨을 따로 주지 않는다 — 보이는 글자와 같은 값이라 중복해서 읽힐 뿐이고,
+            role 없는 요소의 aria-label은 웹에서 무효 마크업이 된다 */}
+        <Text style={styles.code}>{session.id.toUpperCase()}</Text>
         <Text style={styles.hint}>{t('console.detail.entryHint')}</Text>
         <QrCode value={joinUrl} />
         <Text style={styles.sectionLabel}>{t('console.detail.link')}</Text>
@@ -171,11 +176,15 @@ export function SessionDetailView({ session }: { session: SessionSummary }) {
             accessibilityLabel={t('common.close')}
             style={styles.errorBox}
           >
-            <Text style={styles.errorText}>{consoleErrorMessage(t, failure)}</Text>
+            <Text style={styles.errorText} accessibilityRole="alert">
+              {consoleErrorMessage(t, failure)}
+            </Text>
           </Pressable>
         )}
 
-        <View style={styles.progressTrack}>
+        {/* 막대는 바로 아래 문장("N문장 중 M문장 진행")과 같은 정보를 색으로 되풀이할
+            뿐이다 — 접근성 트리에 두면 같은 값을 두 번 읽는다 */}
+        <View style={styles.progressTrack} aria-hidden>
           <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />
         </View>
         <Text style={styles.hint}>
@@ -218,7 +227,7 @@ export function SessionDetailView({ session }: { session: SessionSummary }) {
           <Pressable
             onPress={() => setMonitorOn((on) => !on)}
             accessibilityRole="switch"
-            accessibilityState={{ checked: monitorOn }}
+            aria-checked={monitorOn}
             accessibilityLabel={t('console.monitor.show')}
             style={[styles.toggle, monitorOn && styles.toggleActive]}
           >
@@ -242,7 +251,7 @@ export function SessionDetailView({ session }: { session: SessionSummary }) {
 const stylesFor = createThemedStyles((color) => ({
   screen: { flex: 1 },
   content: { padding: space[5], gap: space[3] },
-  backRow: { minHeight: 32, justifyContent: 'center' },
+  backRow: { minHeight: TOUCH_TARGET, justifyContent: 'center', alignSelf: 'flex-start' },
   backText: { fontSize: font.sm, fontWeight: '600', color: color.primary },
   headerBlock: { gap: space[2] },
   title: { fontSize: font.xl, fontWeight: '700', color: color.text },
@@ -271,13 +280,14 @@ const stylesFor = createThemedStyles((color) => ({
   control: {
     flexGrow: 1,
     flexBasis: 88,
-    minHeight: 44,
+    minHeight: TOUCH_TARGET,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: space[3],
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: color.border,
+    // 버튼의 윤곽이다 — 컨트롤 경계 (WCAG 1.4.11)
+    borderColor: color.borderStrong,
     backgroundColor: color.surfaceSubtle,
   },
   controlCompact: { flexGrow: 0, flexBasis: 'auto', minWidth: 64 },
@@ -288,9 +298,14 @@ const stylesFor = createThemedStyles((color) => ({
   controlTextPrimary: { color: color.onPrimary },
   controlTextDanger: { color: color.danger },
   errorBox: {
+    minHeight: TOUCH_TARGET,
+    justifyContent: 'center',
     padding: space[3],
     borderRadius: radius.md,
-    backgroundColor: `${color.danger}1F`,
+    // danger를 12% 합성한 배경 위의 danger 글자는 라이트 4.01 / 서브틀 3.79로 AA 미달이었다.
+    // 콘솔의 다른 오류 상자(LanguageBoard·RoomBoard)와 같은 surfaceSubtle로 맞춘다 —
+    // danger/surfaceSubtle은 토큰 대비 테스트가 지키는 조합이다 (라이트 4.57 / 다크 4.90).
+    backgroundColor: color.surfaceSubtle,
   },
   errorText: { fontSize: font.sm, color: color.danger },
   progressTrack: {
@@ -316,6 +331,8 @@ const stylesFor = createThemedStyles((color) => ({
     gap: space[3],
   },
   toggle: {
+    minHeight: TOUCH_TARGET,
+    justifyContent: 'center',
     paddingHorizontal: space[3],
     paddingVertical: 6,
     borderRadius: radius.full,
