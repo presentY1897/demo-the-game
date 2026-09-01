@@ -7,8 +7,17 @@
   font-size: var(--tg-font-size-xs);
   font-weight: var(--tg-font-weight-medium);
   line-height: var(--tg-leading-normal);
-  color: var(--tg-badge-color, var(--tg-color-text-muted));
-  background: color-mix(in srgb, var(--tg-badge-color, var(--tg-color-text-muted)) 12%, transparent);
+  /*
+   * 라벨은 tone이 아니라 본문 색이다 (S06 인계 2).
+   *
+   * 원래는 tone 12% 틴트 배경 위에 **같은 tone**으로 글자를 썼는데, 그 조합은
+   * 라이트 3.79~4.36 · 다크 4.12~4.35로 AA(4.5:1) 미달이었다. 틴트를 낮춰도 상한이
+   * 토큰 대비(최악 4.57)라 여유가 없다 — 그래서 라벨 색을 tone에서 떼어냈다.
+   * 상태 색은 틴트와 점이 나르고, 라벨이 자유로워진 만큼 틴트를 20%로 올려 배지가
+   * 더 또렷해졌다. 실측: 라벨 11.6~12.7(라이트) / 8.9~13.2(다크), 점 최악 3.36:1(1.4.11).
+   */
+  color: var(--tg-color-text);
+  background: color-mix(in srgb, var(--tg-badge-color, var(--tg-color-text-muted)) 20%, transparent);
 }
 
 .dot {
@@ -16,7 +25,7 @@
   height: 6px;
   flex: none;
   border-radius: var(--tg-radius-full);
-  background: currentcolor;
+  background: var(--tg-badge-color, var(--tg-color-text-muted));
 }
 
 .neutral {
