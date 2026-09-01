@@ -28,7 +28,7 @@ export default async function ContactPage({ params }: ContactParams) {
   const dict = getDict(locale)
 
   return (
-    <main className={styles.main}>
+    <main id="main" tabIndex={-1} className={styles.main}>
       <div className={styles.intro}>
         <Heading level={1}>{dict.contact.title}</Heading>
         <Text tone="muted">{dict.contact.subtitle}</Text>

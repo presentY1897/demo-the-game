@@ -26,6 +26,12 @@ const en = {
     caretalk: 'CareTalk',
     contact: 'Contact',
     liveDemo: 'Open live demo',
+    /** 스크린리더용 landmark 이름 — 페이지에 nav가 하나뿐이어도 이름이 있어야 목록에서 구분된다 */
+    label: 'Main navigation',
+    /** 키보드 사용자가 헤더 링크를 건너뛰는 첫 번째 포커스 대상 */
+    skipToContent: 'Skip to content',
+    /** 보이는 글자는 "KO"뿐이라 링크만 읽으면 무엇을 하는 링크인지 알 수 없다 */
+    switchLanguage: 'Switch to Korean',
   },
   hero: {
     eyebrow: 'KO → EN · JA · ZH — LIVE',
@@ -119,6 +125,8 @@ const en = {
     successBody: 'Thanks — we’ll get back to you within one business day.',
     errorName: 'Please enter your name.',
     errorEmail: 'Please enter a valid email address.',
+    /** 제출 실패를 라이브 리전으로 알린다 — 시각적으로는 필드 아래 메시지로 이미 보인다 */
+    errorSummary: 'The form could not be sent. Please check the highlighted fields.',
   },
   notFound: {
     code: '404',
@@ -161,6 +169,9 @@ const ko: SiteDict = {
     caretalk: 'CareTalk',
     contact: '문의',
     liveDemo: '라이브 데모 열기',
+    label: '주요 메뉴',
+    skipToContent: '본문 바로가기',
+    switchLanguage: '영어로 전환',
   },
   hero: {
     eyebrow: 'KO → EN · JA · ZH — LIVE',
@@ -254,6 +265,7 @@ const ko: SiteDict = {
     successBody: '감사합니다 — 1영업일 안에 회신드리겠습니다.',
     errorName: '이름을 입력해 주세요.',
     errorEmail: '올바른 이메일 주소를 입력해 주세요.',
+    errorSummary: '문의를 보내지 못했습니다. 표시된 항목을 확인해 주세요.',
   },
   notFound: {
     code: '404',

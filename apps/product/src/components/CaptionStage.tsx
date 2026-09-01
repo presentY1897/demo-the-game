@@ -70,6 +70,12 @@ export function CaptionStage({ labels }: { labels: SiteDict['hero'] }) {
   const pending = showFull ? '' : sentence.ko.slice(chars)
 
   return (
+    /*
+      타이핑 애니메이션이 도는 합성 그래픽이라 role="img" + aria-label로 한 번에 읽힌다
+      — 이게 없으면 스크린리더가 글자가 늘어날 때마다 부분 문장을 다시 읽는다.
+      <img>로 바꿀 수 있는 대상이 아니므로 prefer-tag-over-role은 여기서 오탐이다.
+    */
+    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
     <div
       className={styles.stage}
       style={{ backgroundColor: palette.teal[900] }}

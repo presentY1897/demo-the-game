@@ -78,6 +78,10 @@ export default async function LocaleRootLayout({
         />
       </head>
       <body>
+        {/* 키보드 첫 탭이 헤더 링크 6개를 지나지 않고 본문으로 갈 수 있어야 한다 (WCAG 2.4.1) */}
+        <a className="skip-link" href="#main">
+          {dict.nav.skipToContent}
+        </a>
         <SiteHeader locale={locale} nav={dict.nav} />
         {children}
         <SiteFooter footer={dict.footer} />

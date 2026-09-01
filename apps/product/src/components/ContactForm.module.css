@@ -4,6 +4,15 @@
   max-width: 480px;
 }
 
+/* 비어 있을 때는 높이 0인 블록이라 레이아웃을 밀지 않는다 (라이브 리전은 항상 DOM에 있어야 한다) */
+.formError {
+  display: block;
+  margin: 0;
+  color: var(--tg-color-danger);
+  font-size: var(--tg-font-size-sm);
+  font-weight: var(--tg-font-weight-medium);
+}
+
 .interests {
   border: none;
   margin: 0;
@@ -26,7 +35,7 @@
 .chip {
   padding: 8px 16px;
   border-radius: var(--tg-radius-full);
-  border: 1px solid var(--tg-color-border);
+  border: 1px solid var(--tg-color-border-strong);
   background: var(--tg-color-surface);
   color: var(--tg-color-text-muted);
   font-family: inherit;
@@ -52,7 +61,7 @@
 
 .textarea {
   padding: 10px 14px;
-  border: 1px solid var(--tg-color-border);
+  border: 1px solid var(--tg-color-border-strong);
   border-radius: var(--tg-radius-md);
   background: var(--tg-color-surface);
   color: var(--tg-color-text);

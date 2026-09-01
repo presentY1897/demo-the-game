@@ -31,7 +31,7 @@ export default async function LandingPage({ params }: LandingParams) {
   const dict = getDict(locale)
 
   return (
-    <main className={styles.main}>
+    <main id="main" tabIndex={-1} className={styles.main}>
       <section className={styles.hero}>
         <p className={`mono ${styles.eyebrow}`}>{dict.hero.eyebrow}</p>
         <h1 className={styles.heroTitle}>{dict.hero.title}</h1>
@@ -54,7 +54,8 @@ export default async function LandingPage({ params }: LandingParams) {
           {dict.symposia.features.map((feature) => (
             <Card key={feature.title} padding="lg">
               <div className={styles.feature}>
-                <Heading level={4}>{feature.title}</Heading>
+                {/* h2 섹션 제목 바로 아래라 h3이다 — h4로 두면 레벨이 한 단 건너뛴다 */}
+                <Heading level={3}>{feature.title}</Heading>
                 <Text tone="muted" size="sm">
                   {feature.body}
                 </Text>
@@ -88,7 +89,7 @@ export default async function LandingPage({ params }: LandingParams) {
             <li key={step.title} className={styles.step}>
               <span className={`mono ${styles.stepIndex}`}>{String(index + 1).padStart(2, '0')}</span>
               <div className={styles.feature}>
-                <Heading level={4}>{step.title}</Heading>
+                <Heading level={3}>{step.title}</Heading>
                 <Text tone="muted" size="sm">
                   {step.body}
                 </Text>

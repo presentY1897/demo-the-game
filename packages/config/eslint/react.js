@@ -38,6 +38,24 @@ export const reactPreset = [
     ...jsxA11y.flatConfigs.recommended,
   },
 
+  // recommended에서 꺼져 있지만 이 제품에서 실제로 위험한 규칙들 (S06 접근성 패스에서 추가).
+  // strict 전체를 켜지 않는 이유: strict는 폐기된 label-has-for까지 포함해 오탐이 난다.
+  {
+    files: ['**/*.{tsx,jsx}'],
+    rules: {
+      // 이름 없는 아이콘 버튼·칩 — 스크린리더에서 "버튼"으로만 읽힌다
+      'jsx-a11y/control-has-associated-label': 'error',
+      // 포커스는 가는데 접근성 트리에는 없는 요소 (탭하면 아무것도 안 읽힌다)
+      'jsx-a11y/no-aria-hidden-on-focusable': 'error',
+      // "여기", "click here" — 링크 목록만 훑는 사용자에게 의미가 없다
+      'jsx-a11y/anchor-ambiguous-text': 'error',
+      // lang="kr" 같은 오타는 음성 엔진 선택을 통째로 어긋나게 한다
+      'jsx-a11y/lang': 'error',
+      // role="button"보다 <button> — 키보드 동작이 공짜로 따라온다
+      'jsx-a11y/prefer-tag-over-role': 'error',
+    },
+  },
+
   {
     files: ['**/*.{ts,tsx,js,jsx}'],
     plugins: { 'react-hooks': reactHooks },
