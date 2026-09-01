@@ -16,8 +16,7 @@
 
 ## 구조
 
-- `apps/corporate` — 기업 홈페이지 (Next.js, 다국어/SEO)
-- `apps/product` — 제품 홈페이지 (Next.js)
+- `apps/product` — 제품 홈페이지 (Next.js, 다국어/SEO)
 - `apps/live-demo` — 실시간 번역 데모 (Expo React Native + react-native-web)
 - `apps/mock-server` — SSE/WebSocket 목 스트리밍 서버 (Node)
 - `packages/ui` — 웹 디자인 시스템 + Storybook

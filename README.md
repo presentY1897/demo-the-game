@@ -17,10 +17,9 @@
 
 | 워크스페이스 | 역할 | 스택 |
 |---|---|---|
-| `apps/corporate` | 기업 홈페이지 (다국어, SEO) | Next.js |
-| `apps/product` | 제품 홈페이지 (학회용/병원용 제품 소개) | Next.js |
-| `apps/live-demo` | 실시간 번역 라이브 데모 | Expo RN + react-native-web |
-| `apps/mock-server` | 강연 스크립트를 SSE/WS로 재생하는 목 서버 | Node |
+| [`apps/product`](./apps/product/README.md) | 제품 홈페이지 (학회용/병원용 제품 소개, 다국어/SEO) | Next.js |
+| [`apps/live-demo`](./apps/live-demo/README.md) | 실시간 번역 라이브 데모 | Expo RN + react-native-web |
+| [`apps/mock-server`](./apps/mock-server/README.md) | 강연 스크립트를 SSE/WS로 재생하는 목 서버 | Node |
 | `packages/ui` | 웹 디자인 시스템 | React + Storybook |
 | `packages/tokens` | 디자인 토큰 (웹/RN 공유) | — |
 | `packages/realtime` | SSE/WS 클라이언트 추상화 | TypeScript |
@@ -41,4 +40,4 @@ pnpm install
 pnpm dev   # 전체 워크스페이스 dev 서버
 ```
 
-_(워크스페이스별 실행 방법은 각 앱 README에 추가 예정)_
+워크스페이스별 실행 방법은 위 구조 표의 각 앱 README를 참고하세요.
