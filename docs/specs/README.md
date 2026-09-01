@@ -18,22 +18,36 @@
 
 ## 작업 명세
 
-| ID | 명세 | 갈래 | 의존 | 판정 |
+| ID | 명세 | 갈래 | 의존 | 판정 · 커밋 |
 |---|---|---|---|---|
-| [S01](./S01-room-lifecycle.md) | 방 라이프사이클과 초대 코드 | 구조 | — | 대기 |
-| [S02](./S02-entry-onboarding.md) | 역할 기반 진입 동선과 온보딩 | 구조 | S01, S14 | 대기 |
-| [S03](./S03-url-routing.md) | URL 라우팅·딥링크·재접속 복귀 | 구조 | S01, S02 | 대기 |
-| [S04](./S04-stage-mode.md) | Symposia 스테이지 모드 | UX | — | 대기 |
-| [S05](./S05-quick-reply.md) | CareTalk 퀵 리플라이 | UX | S01, S02 | 대기 |
-| [S06](./S06-accessibility.md) | 접근성 패스 | UX | S02 권장 | 대기 |
-| [S07](./S07-deployment.md) | 배포 파이프라인 (Render + Vercel) | 인프라 | S01–S03 권장 | 대기 |
-| [S08](./S08-perf-caption-rerender.md) | perf: 자막 리렌더 측정·개선 | 성능 | S01–S04 | 대기 |
-| [S09](./S09-perf-lighthouse.md) | perf: product Lighthouse | 성능 | — | 대기 |
-| [S10](./S10-quality-infra.md) | 품질 인프라 (eslint·CI·테스트) | 인프라 | — | 대기 |
-| [S11](./S11-docs-corporate.md) | corporate 접기 반영·문서 정리 | 문서 | S07 일부 | 대기 |
-| [S12](./S12-translation-api.md) | 번역 API 연동 (Azure Translator F0) | 기능 | — | 대기 |
-| [S13](./S13-symposia-console.md) | Symposia 운영 콘솔 (간사·발표자) | 구조 | S01–S03, F01 | 대기 |
-| [S14](./S14-caretalk-admin.md) | CareTalk 관리자 뷰 | 구조 | S01, F02 | 대기 |
+| [S01](./S01-room-lifecycle.md) | 방 라이프사이클과 초대 코드 | 구조 | — | 완료 `c97ccfd·14a992e` |
+| [S02](./S02-entry-onboarding.md) | 역할 기반 진입 동선과 온보딩 | 구조 | S01, S14 | 완료 `c219062` |
+| [S03](./S03-url-routing.md) | URL 라우팅·딥링크·재접속 복귀 | 구조 | S01, S02 | 완료 `db4ef7e·f6037ee` |
+| [S04](./S04-stage-mode.md) | Symposia 스테이지 모드 | UX | — | 완료 `11d8c4f` |
+| [S05](./S05-quick-reply.md) | CareTalk 퀵 리플라이 | UX | S01, S02 | 완료 `0361ec2` |
+| [S06](./S06-accessibility.md) | 접근성 패스 | UX | S02 권장 | 완료* `4e86b09·72b7188·38af8a3` |
+| [S07](./S07-deployment.md) | 배포 파이프라인 (Render + Vercel) | 인프라 | S01–S03 권장 | 설정 완료 `98149e7` |
+| [S08](./S08-perf-caption-rerender.md) | perf: 자막 리렌더 측정·개선 | 성능 | S01–S04 | 완료 `36c79df` |
+| [S09](./S09-perf-lighthouse.md) | perf: product Lighthouse | 성능 | — | 완료 `9a85a3a·f9361ec` |
+| [S10](./S10-quality-infra.md) | 품질 인프라 (eslint·CI·테스트) | 인프라 | — | 완료 `9891730·56da712` |
+| [S11](./S11-docs-corporate.md) | corporate 접기 반영·문서 정리 | 문서 | S07 일부 | 부분 `0eb3144·23bb868` |
+| [S12](./S12-translation-api.md) | 번역 API 연동 (Azure Translator F0) | 기능 | — | 완료* `ab8ae35·8e5f7e7` |
+| [S13](./S13-symposia-console.md) | Symposia 운영 콘솔 (간사·발표자) | 구조 | S01–S03, F01 | 완료 `c97ccfd·ac78c4d` |
+| [S14](./S14-caretalk-admin.md) | CareTalk 관리자 뷰 | 구조 | S01, F02 | 완료 `c97ccfd·f8afb37` |
+
+
+### 판정 읽는 법 (2026-09-01 마감 기준)
+
+- **완료** — 완성 기준을 전부 충족하고 테스트가 붙었다.
+- **완료\*** — 코드는 완료이나 **이 환경에서 불가능한 검증**이 남았다.
+  - S06: 스크린리더(VoiceOver/TalkBack) 3여정 완주 체크리스트 — 실기기·보조기기 필요.
+    자동 검증(axe-core 라이트 138→0 · 다크 132→0, 대비 유닛 테스트, 터치 타깃 51→0,
+    글자 확대 잘림 60→0)은 전부 통과했고, 남은 건 "읽는 순서와 문장이 쓸 만한가"다.
+  - S12: Azure 실키 스모크 — 키 필요. 키 없이 도는 경로(사전 → `[demo]`)는 테스트로 고정돼 있다.
+- **설정 완료** — S07은 저장소에 있어야 할 것(`render.yaml`·`vercel.json`·CORS·환경변수·절차)이
+  전부 들어갔고, 실제 계정 연결과 첫 배포는 사용자 몫으로 남겼다(사용자 확인, 9/1).
+- **부분** — S11은 product 회사 소개·SEO 세트·앱별 README까지 끝냈고,
+  루트 README의 **배포 링크 4종과 데모 GIF**는 배포 URL이 나와야 채울 수 있다.
 
 ## 제안 순서
 
