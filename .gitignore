@@ -23,3 +23,7 @@ coverage/
 
 # Lighthouse CLI가 WSL에서 만드는 크롬 프로필 (윈도우 경로가 통째로 파일명이 된다)
 C:\\*
+
+# 자막 리렌더 측정(S08 / docs/perf/001)의 프로파일링 빌드와 원자료
+dist-profile/
+perf-caption-*.json
