@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { DocumentHead } from '../components/DocumentHead'
-import { brandSans, plexMono } from '../fonts'
+import { plexMono } from '../fonts'
 import { getDict, siteLocales } from '../i18n/dictionaries'
 import { localePath, withSiteName } from '../site'
 import styles from './not-found.module.css'
@@ -30,7 +30,7 @@ export default function NotFound() {
         이 페이지는 noindex라 크롤러 쪽 손해는 없다.
       */}
       <script dangerouslySetInnerHTML={{ __html: "document.documentElement.lang='en'" }} />
-      <main className={`${brandSans.variable} ${plexMono.variable} ${styles.main}`}>
+      <main className={`${plexMono.variable} ${styles.main}`}>
         <p className={`mono ${styles.code}`}>{getDict('en').notFound.code}</p>
         {siteLocales.map((locale, index) => {
           const dict = getDict(locale)

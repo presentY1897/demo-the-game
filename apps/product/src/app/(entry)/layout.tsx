@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { DocumentHead } from '../../components/DocumentHead'
-import { brandSans, plexMono } from '../../fonts'
+import { plexMono } from '../../fonts'
 import { getDict } from '../../i18n/dictionaries'
 import { OG_IMAGE_HEIGHT, OG_IMAGE_PATH, OG_IMAGE_WIDTH, SITE_URL } from '../../site'
 import '../globals.css'
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 
 export default function EntryRootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${brandSans.variable} ${plexMono.variable}`}>
+    <html lang="en" className={plexMono.variable}>
       <head>
         <DocumentHead />
       </head>
