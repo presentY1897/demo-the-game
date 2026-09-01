@@ -59,6 +59,12 @@ export const ko = {
     langPairUnknown: '{myRole}({myLang}) ↔ {peerRole}',
     leave: '대화 나가기',
   },
+  quickReply: {
+    title: '자주 쓰는 문구',
+    expand: '문구 펼치기',
+    collapse: '문구 접기',
+    longPressHint: '탭하면 바로 전송 · 길게 누르면 고쳐서 보낼 수 있어요',
+  },
   home: {
     joinSession: '세션 코드로 입장',
     sessionCodePlaceholder: '세션 코드 (예: keynote-01)',

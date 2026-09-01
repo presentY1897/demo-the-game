@@ -78,6 +78,9 @@ importers:
 
   apps/mock-server:
     dependencies:
+      '@thegame/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@thegame/realtime':
         specifier: workspace:*
         version: link:../../packages/realtime

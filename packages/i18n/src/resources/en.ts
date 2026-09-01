@@ -52,6 +52,16 @@ export const en = {
     langPairUnknown: '{myRole} ({myLang}) ↔ {peerRole}',
     leave: 'Leave the room',
   },
+  /**
+   * 퀵 리플라이 칩 영역의 **껍데기**만 여기 있다 (S05).
+   * 문구와 그룹 라벨은 대화 언어를 따르므로 `quick-replies.ts` 카탈로그에 있다.
+   */
+  quickReply: {
+    title: 'Quick replies',
+    expand: 'Show quick replies',
+    collapse: 'Hide quick replies',
+    longPressHint: 'Tap to send · press and hold to edit first',
+  },
   home: {
     joinSession: 'Join a session',
     sessionCodePlaceholder: 'Session code (e.g. keynote-01)',

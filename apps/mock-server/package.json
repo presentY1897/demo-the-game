@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@thegame/i18n": "workspace:*",
     "@thegame/realtime": "workspace:*",
     "ws": "^8.18.0"
   },

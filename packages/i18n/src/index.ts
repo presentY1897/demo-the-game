@@ -11,3 +11,18 @@ export {
   type MessageKey,
   type Translator,
 } from './translator'
+export {
+  QUICK_REPLY_GROUPS,
+  QUICK_REPLY_LOCALES,
+  isQuickReplyLocale,
+  quickRepliesFor,
+  quickReplyPhrases,
+  quickReplyTranslationPairs,
+  type QuickReplyChip,
+  type QuickReplyGroup,
+  type QuickReplyGroupView,
+  type QuickReplyLocale,
+  type QuickReplyPhrase,
+  type QuickReplyRole,
+  type QuickReplyTranslationPair,
+} from './quick-replies'

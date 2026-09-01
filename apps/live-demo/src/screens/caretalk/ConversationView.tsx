@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -15,6 +15,8 @@ import { languageLabel, useT } from '../../i18n'
 import { selectPeerLang } from '../../stores/conversationSelectors'
 import { useConversationStore, type ChatMessage } from '../../stores/conversationStore'
 import { createThemedStyles, font, radius, space, useTheme, useThemedStyles } from '../../theme'
+import { QuickReplyBar } from './QuickReplyBar'
+import { createQuickReplyHandlers, nextCollapsed } from './quickReply'
 
 function MessageBubble({ message, myRole }: { message: ChatMessage; myRole: ParticipantRole }) {
   const styles = useThemedStyles(stylesFor)
@@ -43,7 +45,10 @@ export function ConversationView({ myRole, myLang, say, notifyTyping }: Conversa
   const { color } = useTheme()
   const styles = useThemedStyles(stylesFor)
   const [draft, setDraft] = useState('')
+  // 칩 영역은 처음엔 펼쳐 둔다 — 타이핑 부담을 줄이는 게 이 화면의 기본값(S05)
+  const [chipsCollapsed, setChipsCollapsed] = useState(false)
   const listRef = useRef<FlatList<ChatMessage>>(null)
+  const inputRef = useRef<TextInput>(null)
 
   const status = useConversationStore((state) => state.status)
   const messages = useConversationStore((state) => state.messages)
@@ -56,6 +61,17 @@ export function ConversationView({ myRole, myLang, say, notifyTyping }: Conversa
     say(draft)
     setDraft('')
   }
+
+  const quickReply = useMemo(
+    () =>
+      createQuickReplyHandlers({
+        say,
+        draft,
+        setDraft,
+        focusInput: () => inputRef.current?.focus(),
+      }),
+    [say, draft],
+  )
 
   return (
     <KeyboardAvoidingView
@@ -96,8 +112,18 @@ export function ConversationView({ myRole, myLang, say, notifyTyping }: Conversa
       )}
       {lastError !== null && <Text style={styles.error}>{lastError}</Text>}
 
+      <QuickReplyBar
+        role={myRole}
+        lang={myLang}
+        collapsed={chipsCollapsed}
+        onToggle={() => setChipsCollapsed((current) => nextCollapsed('toggle', current, draft))}
+        onSelect={quickReply.onTap}
+        onInsert={quickReply.onLongPress}
+      />
+
       <View style={styles.inputRow}>
         <TextInput
+          ref={inputRef}
           style={styles.input}
           value={draft}
           onChangeText={(text) => {
@@ -108,6 +134,10 @@ export function ConversationView({ myRole, myLang, say, notifyTyping }: Conversa
           placeholderTextColor={color.textMuted}
           onSubmitEditing={submit}
           returnKeyType="send"
+          // 키보드가 올라오면 칩이 대화를 가린다 — 포커스에 맞춰 접고, 초안 없이
+          // 빠져나오면 다시 펼친다 (S05)
+          onFocus={() => setChipsCollapsed((current) => nextCollapsed('focus', current, draft))}
+          onBlur={() => setChipsCollapsed((current) => nextCollapsed('blur', current, draft))}
         />
         <Pressable
           style={[styles.sendButton, draft.trim() === '' && styles.sendButtonDisabled]}
