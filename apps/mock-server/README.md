@@ -22,6 +22,45 @@ pnpm --filter @thegame/mock-server typecheck
 상태는 전부 메모리에 있다 — 영속화 없음, 재시작하면 방·세션·설정이 초기화된다.
 인증도 없다(데모 한계, F01/F02에 문서화).
 
+## 배포 (Render)
+
+무료 웹 서비스 1개로 배포한다 (ADR-0006). 저장소 루트의 `render.yaml`이 Blueprint다 —
+Render 대시보드에서 **New + → Blueprint**로 이 저장소를 고르면 그대로 만들어진다.
+클릭 순서와 환경변수 값의 출처는 [S07 배포 절차](../../docs/specs/S07-deployment.md#배포-절차-재현-가능--이-순서대로).
+
+| 항목 | 값 | 왜 |
+|---|---|---|
+| 빌드 | `corepack enable && pnpm install --frozen-lockfile --filter @thegame/mock-server...` | 9개 워크스페이스 중 목 서버에 필요한 3개만 설치 |
+| 시작 | `pnpm --filter @thegame/mock-server start` | `tsx`가 TS를 그대로 실행 — 컴파일 산출물이 없다 |
+| 헬스 체크 | `/health` | 슬립에서 깨어난 뒤 준비 판정. CORS와 무관하게 200 |
+| 플랜 | Free (Singapore) | 카드 등록 불필요. 15분 무트래픽 시 슬립 → 콜드스타트 수십 초 |
+
+### CORS 화이트리스트
+
+`ALLOWED_ORIGINS`가 **비어 있으면 지금까지와 똑같이 `*`** 다. 값이 있을 때만 좁혀진다.
+
+```bash
+ALLOWED_ORIGINS="https://thegame-live-demo.vercel.app,https://*.vercel.app" \
+  pnpm --filter @thegame/mock-server start
+```
+
+- `*`는 **점을 넘지 않는 한 조각**에만 대응한다 — `https://*.vercel.app`은
+  `https://demo-git-abc.vercel.app`을 받고 `https://a.b.vercel.app`은 받지 않는다.
+  (누구나 `vercel.app`에 배포할 수 있으니 프리뷰가 필요할 때만 쓴다.)
+- 대소문자·트레일링 슬래시 차이는 흡수한다.
+- **`Origin` 헤더가 없는 요청은 막지 않는다** — curl·Expo 네이티브 앱·Render 헬스체크가
+  여기 해당한다. CORS는 브라우저의 규칙이지 인증이 아니다.
+- **WebSocket 핸드셰이크(`/ws/conversation`)도 같은 목록으로 검사한다.** WS에는 CORS가
+  적용되지 않아 브라우저가 막아주지 않으므로 서버가 직접 `403`으로 거절한다.
+- 차단은 무음이 아니다 — 오리진마다 한 번씩 `[mock-server] CORS 차단: …` 경고를 남긴다.
+
+부팅 로그가 현재 모드를 알려준다:
+
+```
+[mock-server] CORS: 모든 오리진 허용 (ALLOWED_ORIGINS 미설정 — 로컬 개발 기본값)
+[mock-server] CORS: https://thegame-live-demo.vercel.app 만 허용
+```
+
 ## 엔드포인트
 
 에러 응답은 모두 `{ error, message }` 형태다. `error`는 분기용 안정 코드
@@ -153,7 +192,8 @@ CareTalk 대화(`WS /ws/conversation`) 번역은 3단으로 내려간다. 설계
 
 | 변수 | 기본값 | 설명 |
 |---|---|---|
-| `PORT` | `4010` | HTTP/WS 수신 포트 |
+| `PORT` | `4010` | HTTP/WS 수신 포트. Render는 이 값을 자동 주입한다 |
+| `ALLOWED_ORIGINS` | *(없음 = `*`)* | CORS 허용 오리진 화이트리스트 (쉼표 구분). **없으면 예전처럼 모든 오리진을 허용한다** — 로컬 개발은 그대로다. 아래 [배포](#배포-render) 참고 |
 | `AZURE_TRANSLATOR_KEY` | *(없음)* | **이 값이 있을 때만** 번역 체인 ②가 켜진다. 없으면 ①③만 동작 |
 | `AZURE_TRANSLATOR_REGION` | *(없음)* | 지역 전용 리소스일 때 필요. 있으면 `Ocp-Apim-Subscription-Region` 헤더로 전송 |
 | `AZURE_TRANSLATOR_ENDPOINT` | `https://api.cognitive.microsofttranslator.com` | 전역 엔드포인트 대신 전용 엔드포인트를 쓸 때 |

@@ -6,6 +6,7 @@ import {
 } from '@thegame/realtime/http'
 import type { WebSocketServer } from 'ws'
 import { createConversationServer } from './conversation'
+import { createCorsPolicy, type CorsPolicy } from './cors'
 import { RoomRegistry, toAdminRoom, type RoomRegistryOptions } from './rooms'
 import { SessionManager, type SessionManagerOptions } from './sessions'
 import { SettingsStore } from './settings'
@@ -24,6 +25,11 @@ export interface MockServerOptions {
   botReplyDelayMs?: number
   /** 부팅 시 keynote 세션을 대기 상태로 시드할지 (기본 true) */
   seed?: boolean
+  /**
+   * CORS 허용 오리진 (쉼표 구분). 생략하면 `ALLOWED_ORIGINS` 환경변수를 읽고,
+   * 그것도 없으면 `*` — 즉 **아무 설정 없는 로컬 실행은 예전 그대로다**.
+   */
+  allowedOrigins?: string
 }
 
 export interface MockServer {
@@ -32,6 +38,7 @@ export interface MockServer {
   rooms: RoomRegistry
   sessions: SessionManager
   settings: SettingsStore
+  cors: CorsPolicy
   close: () => Promise<void>
 }
 
@@ -73,6 +80,17 @@ export function createMockServer(options: MockServerOptions = {}): MockServer {
   const rooms = new RoomRegistry({ ...options.room, ...(options.now ? { now: options.now } : {}) })
   const sessions = new SessionManager({ ...options.session, timing: options.timing ?? {} })
   const settings = new SettingsStore()
+  const cors = createCorsPolicy(options.allowedOrigins ?? process.env['ALLOWED_ORIGINS'])
+  const rejectedOrigins = new Set<string>()
+
+  /** 무음 실패 금지 — 차단된 오리진은 오리진마다 한 번씩 경고로 남긴다 */
+  function warnRejected(origin: string, what: string): void {
+    if (rejectedOrigins.has(origin)) return
+    rejectedOrigins.add(origin)
+    console.warn(
+      `[mock-server] CORS 차단: ${what} origin "${origin}" — ALLOWED_ORIGINS(${cors.patterns.join(', ')})에 없다`,
+    )
+  }
 
   if (options.seed !== false) sessions.seed()
   rooms.start()
@@ -90,7 +108,12 @@ export function createMockServer(options: MockServerOptions = {}): MockServer {
     const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`)
     const method = req.method ?? 'GET'
 
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    const origin = req.headers.origin
+    const allowOrigin = cors.allowOriginFor(origin)
+    if (allowOrigin !== null) res.setHeader('Access-Control-Allow-Origin', allowOrigin)
+    else if (origin !== undefined && origin !== '') warnRejected(origin, 'HTTP')
+    // 오리진마다 응답이 달라지므로 캐시가 섞이지 않게 알린다
+    if (!cors.allowAll) res.setHeader('Vary', 'Origin')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Last-Event-ID')
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
     if (method === 'OPTIONS') {
@@ -290,6 +313,16 @@ export function createMockServer(options: MockServerOptions = {}): MockServer {
 
   server.on('upgrade', (req, socket, head) => {
     const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`)
+    // WebSocket 핸드셰이크에는 CORS가 적용되지 않는다 — 브라우저가 막아주지 않으므로
+    // 화이트리스트가 켜져 있으면 여기서 직접 거절한다. Origin 없는 요청(네이티브 앱·
+    // 테스트 클라이언트)은 그대로 통과시킨다.
+    const wsOrigin = req.headers.origin
+    if (!cors.isAllowed(wsOrigin)) {
+      warnRejected(wsOrigin ?? '', 'WebSocket')
+      socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n')
+      socket.destroy()
+      return
+    }
     if (url.pathname === '/ws/conversation') {
       wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req))
     } else {
@@ -308,5 +341,5 @@ export function createMockServer(options: MockServerOptions = {}): MockServer {
     })
   }
 
-  return { server, wss, rooms, sessions, settings, close }
+  return { server, wss, rooms, sessions, settings, cors, close }
 }
