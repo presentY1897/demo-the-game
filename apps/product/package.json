@@ -7,7 +7,7 @@
     "build": "next build",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "next build && vitest run"
+    "test": "vitest run"
   },
   "dependencies": {
     "@thegame/i18n": "workspace:*",
