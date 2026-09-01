@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, Text, View } from 'react-native'
+import { ActionButton } from '../components/ActionButton'
+import { CaptionRow } from '../components/CaptionRow'
 import { ConnectionBadge } from '../components/ConnectionBadge'
 import { KeepScreenAwake } from '../components/KeepScreenAwake'
 import { StageCaption } from '../components/StageCaption'
 import { useCaptionStream } from '../hooks/useCaptionStream'
 import { useT } from '../i18n'
+import { useNav } from '../navigation'
 import { selectStageView } from '../stores/captionSelectors'
 import { useCaptionStore, type CaptionEntry } from '../stores/captionStore'
 import { useStageMode } from '../stores/stageStore'
@@ -14,38 +17,6 @@ const FONT_SCALE_MIN = 0.85
 const FONT_SCALE_MAX = 1.6
 const FONT_SCALE_STEP = 0.15
 
-function CaptionRow({
-  entry,
-  targetLang,
-  scale,
-}: {
-  entry: CaptionEntry
-  targetLang: string
-  scale: number
-}) {
-  const styles = useThemedStyles(stylesFor)
-  const translation = entry.translations[targetLang]
-  return (
-    <View style={styles.captionRow}>
-      <Text
-        style={[
-          styles.sourceText,
-          { fontSize: font.md * scale },
-          !entry.isFinal && styles.partialText,
-        ]}
-      >
-        {entry.sourceText}
-        {!entry.isFinal && ' ▌'}
-      </Text>
-      {entry.isFinal && (
-        <Text style={[styles.translationText, { fontSize: font.md * scale }]}>
-          {translation ?? '…'}
-        </Text>
-      )}
-    </View>
-  )
-}
-
 export function SymposiaScreen({ sessionId }: { sessionId: string }) {
   const t = useT()
   const styles = useThemedStyles(stylesFor)
@@ -53,6 +24,8 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
   const [scale, setScale] = useState(1)
   const [autoScroll, setAutoScroll] = useState(true)
   const [retryToken, setRetryToken] = useState(0)
+  /** 종료 안내를 닫고 지나간 자막을 다시 훑는 중인지 */
+  const [reviewing, setReviewing] = useState(false)
   const listRef = useRef<FlatList<CaptionEntry>>(null)
 
   useCaptionStream(sessionId, lang, retryToken)
@@ -61,6 +34,8 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
   const entries = useCaptionStore((state) => state.entries)
   const ended = useCaptionStore((state) => state.ended)
 
+  const navigate = useNav((state) => state.navigate)
+
   const stage = useStageMode((state) => state.enabled)
   const toggleStage = useStageMode((state) => state.toggle)
   const stageView = useMemo(() => selectStageView(entries), [entries])
@@ -68,6 +43,11 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
   // 스테이지 모드는 이 화면의 맥락(강연장 시청) 전용이라 화면을 벗어나면 반드시 풀린다 —
   // 강제 다크와 keep-awake가 홈/CareTalk까지 따라가지 않게.
   useEffect(() => () => useStageMode.getState().setEnabled(false), [])
+
+  // 세션 루프가 새로 시작되면(ended → false) 종료 안내를 다시 쓸 수 있게 되돌린다
+  useEffect(() => {
+    if (!ended) setReviewing(false)
+  }, [ended])
 
   const languages = session?.targetLangs ?? ['en', 'ja', 'zh']
   const closed = status.state === 'closed'
@@ -164,7 +144,7 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
           </View>
         )}
 
-        {!stage && !autoScroll && (
+        {!stage && !autoScroll && !ended && (
           <Pressable
             style={styles.resumeButton}
             onPress={resumeAutoScroll}
@@ -173,11 +153,31 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
             <Text style={styles.resumeText}>↓ {t('caption.resume')}</Text>
           </Pressable>
         )}
+
+        {/* 세션이 끝나면 자막만 멈추는 게 아니라 다음 행동을 준다 —
+            강연장을 나서는 사람은 홈으로, 놓친 대목을 찾는 사람은 자막으로 (S13) */}
+        {ended && !reviewing && (
+          <View style={styles.endedOverlay} accessibilityRole="alert">
+            <View style={styles.endedCard}>
+              <Text style={styles.endedTitle}>{t('console.ended.title')}</Text>
+              <Text style={styles.endedBody}>{t('console.ended.body')}</Text>
+              <ActionButton label={t('console.ended.home')} onPress={() => navigate({ name: 'home' })} />
+              <ActionButton
+                label={t('console.ended.review')}
+                variant="secondary"
+                onPress={() => setReviewing(true)}
+              />
+            </View>
+          </View>
+        )}
       </View>
 
-      {ended && (
+      {ended && reviewing && (
         <View style={styles.endedBanner}>
           <Text style={styles.endedText}>{t('caption.sessionEnded')}</Text>
+          <Pressable onPress={() => navigate({ name: 'home' })} accessibilityRole="button">
+            <Text style={styles.endedLink}>{t('console.ended.home')}</Text>
+          </Pressable>
         </View>
       )}
 
@@ -253,10 +253,6 @@ const stylesFor = createThemedStyles((color) => ({
     backgroundColor: color.bg,
   },
   listContent: { paddingHorizontal: space[4], paddingBottom: space[10], gap: space[4] },
-  captionRow: { gap: space[1] },
-  sourceText: { color: color.text, fontWeight: '600' },
-  partialText: { color: color.textMuted, fontWeight: '400' },
-  translationText: { color: color.primary },
   resumeButton: {
     position: 'absolute',
     bottom: space[6],
@@ -267,8 +263,38 @@ const stylesFor = createThemedStyles((color) => ({
     borderRadius: radius.full,
   },
   resumeText: { color: color.onPrimary, fontSize: font.sm, fontWeight: '600' },
-  endedBanner: { padding: space[3], alignItems: 'center' },
+  endedOverlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: space[5],
+    backgroundColor: `${color.bg}F2`,
+  },
+  endedCard: {
+    width: '100%',
+    maxWidth: 360,
+    gap: space[3],
+    padding: space[5],
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: color.border,
+    backgroundColor: color.surface,
+  },
+  endedTitle: { fontSize: font.xl, fontWeight: '700', color: color.text },
+  endedBody: { fontSize: font.sm, color: color.textMuted },
+  endedBanner: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: space[3],
+    padding: space[3],
+  },
   endedText: { color: color.textMuted, fontSize: font.sm },
+  endedLink: { color: color.primary, fontSize: font.sm, fontWeight: '700' },
   closedBanner: {
     flexDirection: 'row',
     justifyContent: 'center',
