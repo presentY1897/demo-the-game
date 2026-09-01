@@ -63,3 +63,36 @@
 ## 범위 제외
 
 SSR/SEO(라이브 데모는 앱 — product가 담당), 라우팅 라이브러리 도입, 웹 외 플랫폼의 URL 복원.
+
+## 구현 메모 (2026-09-01)
+
+- **지원 경로**: `/` · `/session/:id` · `/room` · `/room/:code` · `/console` · `/admin`,
+  그 외 전부 home. 명세에 없던 `/room`(코드 없는 CareTalk 진입)이 늘었다 — 역할·언어
+  온보딩 단계에도 주소가 있어야 새로고침이 홈으로 튕기지 않는다.
+- **어댑터는 `window`가 아니라 포트를 받는다** (`connectHistory(env)`). `history`·
+  `location.pathname`·`popstate` 등록/해제만 요구해서, 테스트가 가짜 히스토리 스택으로
+  pushState/popstate 왕복을 그대로 재현한다(라이브러리·jsdom 없이).
+- **`navigate` = push, `replace` = 주소만 교체.** 라우트 스토어에 `mode` 필드를 둬
+  어댑터가 둘을 구분한다. popstate 반영은 `replace`로 들어와 다시 push되는 순환이 없다.
+- **back은 전략 주입.** 웹 어댑터가 `setBackStrategy`로 `history.back()`을 꽂아 앱 내
+  back과 브라우저 뒤로가기를 한 동작으로 만든다. 앱이 쌓은 히스토리 칸이 0이면
+  (초대 링크로 바로 들어온 첫 화면) 앱 밖으로 나가지 않고 홈으로 보낸다.
+- **복귀 저장 형식은 JSON이 아니라 `v1|<path>|<role>|<lang>` 한 줄.** 라우트 직렬화를
+  URL 어댑터가 이미 하고 있어 재사용되고, 스키마 없는 JSON을 되읽는 자리를 만들지 않는다
+  (CLAUDE.md: 파싱은 realtime에서만). 알 수 없는 형식은 `null`로 버린다.
+- **storage 실패는 삼키되 조용하지는 않다.** 사파리 프라이빗 모드처럼 `setItem`이 던지는
+  환경에서 복귀 배너만 비활성되고 앱은 그대로 동작한다 — 다만 `console.warn`은 남긴다
+  (무음 실패 금지). 저장소 자체가 없는 플랫폼은 `platformStorage()`가 `null`을 준다.
+- **`/room/:code` 진입 시 역할은 환자가 기본이지만, 같은 코드를 보던 기기면 저장된 역할을
+  되살린다.** 의료진이 새로고침했다고 환자로 바뀌면 안 된다. 다른 브라우저에는 저장값이
+  없으므로 명세대로 환자 온보딩을 탄다.
+- **정적 호스팅에는 SPA 폴백이 필요하다.** `expo export --platform web` 산출물은
+  `index.html` 하나라, `/room/:code` 직접 진입이 404가 나지 않으려면 호스트에
+  "모든 경로 → index.html" 리라이트가 있어야 한다(S07 배포 시 반영 대상).
+
+### 미완 — 네이티브 딥링크 (명세의 2차)
+
+`expo-linking` 스킴(`thegame://room/:code`)과 AsyncStorage 복귀는 붙이지 않았다.
+`platformStorage()`가 네이티브에서 `null`을 돌려주고(복귀 배너만 비활성), 라우트는
+메모리에만 산다. 확장 지점은 `src/storage/platform.ts` 한 파일과 `App.tsx`의
+`useUrlSync()` 분기 두 곳이다.
