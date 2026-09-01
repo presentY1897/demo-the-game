@@ -17,15 +17,23 @@
 - `POST /api/rooms` → `201 { roomId, inviteCode }`
   - `inviteCode`: 대문자 영숫자 6자리(혼동 문자 `0/O/1/I` 제외), 충돌 시 재생성.
   - 방은 메모리 보관, 마지막 활동 24시간 후 정리(타이머). 영속화 없음.
-- `GET /api/rooms/:inviteCode` → `200 { roomId }` | `404 { error }`
+  - **마지막 참여자가 나가도 방을 지우지 않는다** — 새로고침·재접속으로 같은 코드로
+    돌아올 수 있어야 하고, 정리는 TTL이 맡는다(구현하며 확정).
+- `GET /api/rooms/:inviteCode` → `200 { roomId, inviteCode }` | `404 { error, message }`
+  - 응답에 `inviteCode`를 함께 실어 `roomSchema` 하나로 두 엔드포인트를 파싱한다.
+  - 코드 조회는 대소문자·앞뒤 공백을 무시한다(환자가 손으로 입력하는 값).
   - 코드 → roomId 해석은 HTTP로 하고, WS `join`은 기존 스키마(roomId) 그대로 사용
-    — 실시간 프로토콜 무변경.
+    — 실시간 프로토콜 무변경. 모르는 roomId로 join하면 방이 새로 생긴다(1인 데모 호환).
+- WS `joined` 이벤트는 **방 전체에 브로드캐스트**한다 — 의료진 대기 화면이 환자 입장을
+  감지하는 신호. 이벤트 스키마는 그대로라 프로토콜 변경이 아니다.
 - 봇: 기존 로직 유지 — **staff가 실재하는 방에서는 봇이 침묵**해야 한다(회귀 테스트 대상).
+  이미 예약된 응답 타이머도 발화 직전에 staff 존재를 다시 확인한다.
 
 ### 공유 타입 (`packages/realtime`)
 
 - `roomSchema = z.object({ roomId, inviteCode })` 추가. HTTP 응답도 zod로 파싱해
-  "파싱은 realtime에서만" 규칙 유지.
+  "파싱은 realtime에서만" 규칙 유지 — `@thegame/realtime/http`의 `decodeRoom`을 쓴다
+  (ADR-0005). 비 2xx 응답 본문은 공통 `apiErrorSchema = { error, message? }`.
 
 ### 클라이언트 (`apps/live-demo`)
 

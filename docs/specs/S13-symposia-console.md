@@ -16,11 +16,20 @@
 - 부팅 시 자동 `broadcaster.start()`를 제거하고 콘솔 제어로 전환:
   - `POST /api/sessions` → 세션 생성 `{ title, speaker, sourceLang, targetLangs }` —
     자막 소스는 데모 스크립트(keynote) 템플릿을 복제.
+  - 새 세션의 `id`는 사람이 받아 적을 수 있는 6자리 코드(초대 코드와 같은 문자 집합)로
+    발급해 그대로 입장 코드로 쓴다(S02: "세션 코드 = 세션 id").
   - `POST /api/sessions/:id/start | pause | resume | end` — 상태 전이. `end` 시
-    `session-ended` 브로드캐스트(프로토콜에 이미 존재).
-  - `GET /api/sessions/:id/status` → `{ state, viewerCount, position }`.
+    `session-ended` 브로드캐스트(프로토콜에 이미 존재). 허용되지 않는 전이는 `409`.
+  - `GET /api/sessions/:id/status` → `{ state, viewerCount, position, total, rate }`.
+    `total`(스크립트 문장 수)과 `rate`는 콘솔이 진행률과 현재 속도를 새로고침 후에도
+    그릴 수 있게 함께 싣는다.
   - 재생 제어: `POST /api/sessions/:id/rate { rate: 0.5–2 }` — 발표자 속도 제어의 데모 대체.
-- 기존 `GET /api/sessions`는 `state` 필드를 추가해 유지(참가자 로비·콘솔 공용).
+  - 제어 엔드포인트(start·pause·resume·end·rate)는 성공 시 모두 `status`와 같은 본문을
+    돌려준다 — 조작 후 재조회가 필요 없다.
+  - 스크립트를 끝까지 재생하면 자동으로 `ended`가 되고 `session-ended`를 보낸다
+    (기존의 "3초 뒤 처음부터 무한 재시작"은 콘솔 제어와 맞지 않아 제거).
+- 기존 `GET /api/sessions`는 `state`와 `viewerCount`를 추가해 유지(참가자 로비·콘솔 공용
+  — 콘솔 목록의 시청자 수를 세션마다 status로 다시 묻지 않게 한다).
 
 ### 클라이언트 — 콘솔 화면 (`/console`, S03 라우팅)
 

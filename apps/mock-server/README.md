@@ -2,6 +2,8 @@
 
 실제 STT/번역 백엔드 자리를 대신하는 목 스트리밍 서버.
 `@thegame/realtime`의 zod 스키마를 그대로 공유하므로 클라이언트와 계약이 어긋날 수 없다.
+스트림 이벤트는 `@thegame/realtime/types`, HTTP 요청·응답은 `@thegame/realtime/http`가
+계약의 정본이다.
 
 ## 실행
 
@@ -11,19 +13,55 @@
 pnpm install
 pnpm --filter @thegame/mock-server dev     # 파일 변경 시 자동 재시작
 pnpm --filter @thegame/mock-server start   # 재시작 없이 1회 실행
-pnpm --filter @thegame/mock-server test    # vitest
+pnpm --filter @thegame/mock-server test    # vitest (유닛 + 실서버 통합)
 pnpm --filter @thegame/mock-server typecheck
 ```
 
 기본 주소는 `http://localhost:4010` (`PORT`로 변경).
 
+상태는 전부 메모리에 있다 — 영속화 없음, 재시작하면 방·세션·설정이 초기화된다.
+인증도 없다(데모 한계, F01/F02에 문서화).
+
 ## 엔드포인트
 
-### `GET /api/sessions`
+에러 응답은 모두 `{ error, message }` 형태다. `error`는 분기용 안정 코드
+(`not-found` · `invalid-body` · `invalid-json` · `invalid-transition` · `invalid-rate` ·
+`unsupported-language` · `empty-language-list` · `method-not-allowed` · `internal-error`),
+`message`는 사람이 읽는 설명이다.
 
-세션 메타데이터 목록.
+## Symposia — 세션 (S13)
 
-### `GET /api/sessions/:id/stream?lang=en` (SSE)
+세션은 **부팅 시 자동 재생되지 않는다**. 데모용 `keynote-01` 한 건이 `waiting`
+상태로 시드되어 있고, 운영 콘솔이 시작시켜야 자막이 흐른다.
+
+상태: `waiting` → `playing` ⇄ `paused` → `ended`. 종료된 세션은 어떤 조작도 받지 않는다(409).
+
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| `GET` | `/api/sessions` | 세션 목록 (`state`·`viewerCount` 포함) |
+| `POST` | `/api/sessions` | 세션 생성 → `201` 세션 요약 |
+| `GET` | `/api/sessions/:id/status` | `{ state, viewerCount, position, total, rate }` |
+| `POST` | `/api/sessions/:id/start` | 대기 → 재생 |
+| `POST` | `/api/sessions/:id/pause` | 재생 → 일시정지 |
+| `POST` | `/api/sessions/:id/resume` | 일시정지 → 재생 |
+| `POST` | `/api/sessions/:id/end` | → 종료, `session-ended` 브로드캐스트 |
+| `POST` | `/api/sessions/:id/rate` | `{ rate: 0.5–2 }` 재생 속도 |
+| `GET` | `/api/sessions/:id/stream?lang=en` | SSE 자막 스트림 |
+
+- 제어 엔드포인트(`start`·`pause`·`resume`·`end`·`rate`)는 모두 성공 시 `status`와
+  같은 본문을 돌려준다 — 조작 후 재조회가 필요 없다.
+- `POST /api/sessions` 본문은 `{ title, speaker, sourceLang, targetLangs }`.
+  자막 소스는 keynote 스크립트 템플릿을 복제하므로 언어는 템플릿이 가진 것
+  (`ko`·`en`·`ja`·`zh`) 중에서만 고를 수 있다. 새 세션의 `id`는 사람이 받아 적을 수
+  있는 6자리 코드이며 그대로 입장 코드로 쓴다(S02).
+- 스크립트를 끝까지 재생하면 자동으로 `ended`가 되고 `session-ended`를 보낸다.
+
+```bash
+curl -X POST http://localhost:4010/api/sessions/keynote-01/start
+curl -N 'http://localhost:4010/api/sessions/keynote-01/stream?lang=en'
+```
+
+### SSE 스트림
 
 학회 강연 스크립트를 실시간처럼 재생하는 **공유 브로드캐스트** — 모든 시청자가
 같은 시점을 본다.
@@ -34,23 +72,50 @@ pnpm --filter @thegame/mock-server typecheck
   (네이티브 자동 재연결) 또는 `?lastEventId=` 쿼리(수동 재연결)로 놓친 확정
   자막만 다시 받는다. 부분 자막은 휘발성이라 복구하지 않는다.
 - `lang` 쿼리로 원문 + 선택 언어만 수신 (생략 시 전체 언어).
-- 15초 간격 하트비트.
+- 15초 간격 하트비트. 대기·종료 상태에서도 연결은 유지된다.
 
-```bash
-curl -N 'http://localhost:4010/api/sessions/keynote-01/stream?lang=en'
-```
+## CareTalk — 방 (S01)
+
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| `POST` | `/api/rooms` | `201 { roomId, inviteCode }` |
+| `GET` | `/api/rooms/:inviteCode` | `200 { roomId, inviteCode }` · `404` |
+
+- `inviteCode`는 혼동 문자 `0/O/1/I`를 뺀 대문자 영숫자 6자리. 조회는 대소문자와
+  앞뒤 공백을 무시한다(환자가 손으로 입력하는 값).
+- 방은 **마지막 활동 24시간 뒤** 정리된다. 마지막 참여자가 나가도 방은 남으므로
+  새로고침·재접속으로 같은 코드로 돌아올 수 있다.
 
 ### `WS /ws/conversation`
 
 병원 1:1 대화 통역. 클라이언트 커맨드(`join`/`say`/`typing`)는
 `clientCommandSchema`로 검증하며, 위반 시 `error` 이벤트로 응답한다.
 
-- `join {roomId, role, lang}` → `joined`
+- `join {roomId, role, lang}` → `joined`. **`joined`는 방 전체에 브로드캐스트된다** —
+  의료진 대기 화면이 환자 입장을 감지하는 신호다(이벤트 스키마는 그대로).
+- 초대 코드 해석은 HTTP가 맡고 WS는 `roomId`만 받는다 — 실시간 프로토콜 무변경.
+- `POST /api/rooms` 없이 클라이언트가 만든 `roomId`로 join하면 방이 새로 생긴다
+  (기존 1인 봇 데모 호환).
 - `say {text}` → 방 전체에 번역이 붙은 `message` 브로드캐스트
 - 실제 의료진(staff)이 없는 방에서는 **봇이 의료진 역할을 대행** —
   typing 인디케이터 후 진료 시나리오 순서대로 응답한다 (1인 데모용).
+  staff가 들어오는 순간, 이미 예약된 응답까지 침묵한다.
 
 대화 번역은 아래 **번역 폴백 체인**을 따른다 (`src/translate.ts`).
+
+## CareTalk — 관리자 (S14)
+
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| `GET` | `/api/admin/rooms` | `[{ inviteCode, memberCount, roles, lastActivityAt, botActive }]` |
+| `GET` | `/api/admin/settings` | `{ patientLangs, supportedLangs }` |
+| `PUT` | `/api/admin/settings` | `{ patientLangs: [...] }` → 저장된 설정 |
+
+- **현황에는 대화 내용이 들어가지 않는다.** 응답 스키마(`adminRoomSchema`)가 strict라
+  필드를 하나라도 늘리면 계약 테스트가 먼저 깨진다(F02).
+- `lastActivityAt`은 epoch ms. 참여자가 0명인 방도 TTL 전까지는 목록에 남는다
+  (`memberCount: 0`) — "종료된 상담"으로 표시할지는 화면 판단.
+- `patientLangs`는 `supportedLangs` 안에서만 고를 수 있고 빈 배열은 거부한다.
 
 ## 번역 폴백 체인
 

@@ -14,8 +14,15 @@
 - `GET /api/admin/rooms` → 열린 방 목록
   `[{ inviteCode, memberCount, roles: ['staff','patient'], lastActivityAt, botActive }]`
   — 대화 내용은 포함하지 않는다(개인정보 인지의 표시, F02 문서화와 일관).
-- `GET /api/admin/settings` / `PUT /api/admin/settings` → `{ patientLangs: ['en','ja',…] }`
-  (메모리 보관). 환자 온보딩(S02)의 언어 목록이 이 설정을 조회해 따른다.
+  응답 스키마를 `z.strictObject`로 두어 명세에 없는 필드가 붙으면 파싱이 실패한다.
+  `lastActivityAt`은 epoch ms. 참여자가 0명인 방도 S01의 TTL 전까지는 `memberCount: 0`으로
+  남는다 — "종료된 상담"으로 표시할지 숨길지는 화면 판단.
+- `GET /api/admin/settings` / `PUT /api/admin/settings` → `{ patientLangs: ['en','ja',…],
+  supportedLangs: [...] }` (메모리 보관). 응답에 `supportedLangs`(기관이 켤 수 있는 전체
+  후보)를 함께 실어 관리자 토글 목록의 소스로 쓴다. 환자 온보딩(S02)의 언어 목록은
+  `patientLangs`를 따른다.
+  - 서버가 아는 후보는 `en·ja·zh·vi·ru·mn`, 기본값은 `en·ja·zh`.
+    목록 밖 코드와 빈 배열은 `400 { error, message }`로 거부한다.
 
 ### 클라이언트 — 관리자 화면 (`/admin`, S03 라우팅)
 
