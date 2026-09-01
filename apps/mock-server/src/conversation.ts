@@ -1,14 +1,26 @@
 import { randomUUID } from 'node:crypto'
 import { WebSocketServer, type WebSocket } from 'ws'
-import {
-  clientCommandSchema,
-  type ConversationEvent,
-} from '@thegame/realtime/types'
+import { parseClientCommand, type ConversationEvent } from '@thegame/realtime/types'
 import { hasRole, type RoomMember, type RoomRecord, type RoomRegistry } from './rooms'
-import { mockTranslate } from './translate'
+import { translateText } from './translate'
 
 const BOT_TYPING_DELAY_MS = 700
 const BOT_REPLY_DELAY_MS = 1900
+
+/**
+ * 번역(S12)이 비동기라 await 사이에 다른 발화가 끼어들면 방 안의 메시지 순서가
+ * 뒤집힌다. 방마다 꼬리 프로미스를 물려 도착 순서대로 브로드캐스트한다.
+ */
+const sendChains = new WeakMap<RoomRecord, Promise<void>>()
+
+function enqueueBroadcast(room: RoomRecord, task: () => Promise<void>): void {
+  const previous = sendChains.get(room) ?? Promise.resolve()
+  const next = previous.then(task, task).catch((cause: unknown) => {
+    // 무음 실패 금지 — 큐가 끊기지 않게 삼키되 반드시 남긴다
+    console.error('[conversation] 브로드캐스트 실패', cause)
+  })
+  sendChains.set(room, next)
+}
 
 export interface ConversationServerOptions {
   /** 테스트에서 봇 응답을 기다리지 않도록 줄인다 */
@@ -58,18 +70,25 @@ export function createConversationServer(
       room.botTimers.delete(replyTimer)
       // 예약 후 의료진이 들어왔다면 봇은 침묵한다 (S01 완성 기준 2)
       if (hasRole(room, 'staff')) return
-      const translationText =
-        room.patientLang === 'en' ? reply.en : mockTranslate(reply.ko, 'ko', room.patientLang)
-      broadcast(room, {
-        type: 'message',
-        id: randomUUID(),
-        role: 'staff',
-        lang: 'ko',
-        text: reply.ko,
-        translation: { lang: room.patientLang, text: translationText },
-        ts: Date.now(),
+      enqueueBroadcast(room, async () => {
+        // await 사이에 의료진이 들어왔을 수도 있다 — 브로드캐스트 직전에 한 번 더 본다
+        if (hasRole(room, 'staff')) return
+        const translationText =
+          room.patientLang === 'en'
+            ? reply.en
+            : await translateText(reply.ko, 'ko', room.patientLang)
+        if (hasRole(room, 'staff')) return
+        broadcast(room, {
+          type: 'message',
+          id: randomUUID(),
+          role: 'staff',
+          lang: 'ko',
+          text: reply.ko,
+          translation: { lang: room.patientLang, text: translationText },
+          ts: Date.now(),
+        })
+        registry.touch(room)
       })
-      registry.touch(room)
     }, replyDelayMs)
     room.botTimers.add(replyTimer)
   }
@@ -78,19 +97,16 @@ export function createConversationServer(
     let joined: { room: RoomRecord; member: RoomMember } | null = null
 
     socket.on('message', (raw) => {
-      let json: unknown
-      try {
-        json = JSON.parse(String(raw))
-      } catch {
-        sendEvent(socket, { type: 'error', code: 'invalid-command', message: 'Malformed JSON' })
+      const parsed = parseClientCommand(String(raw))
+      if (!parsed.ok) {
+        sendEvent(socket, {
+          type: 'error',
+          code: 'invalid-command',
+          message: parsed.error.message,
+        })
         return
       }
-      const parsed = clientCommandSchema.safeParse(json)
-      if (!parsed.success) {
-        sendEvent(socket, { type: 'error', code: 'invalid-command', message: parsed.error.message })
-        return
-      }
-      const command = parsed.data
+      const command = parsed.event
 
       switch (command.type) {
         case 'join': {
@@ -116,17 +132,21 @@ export function createConversationServer(
           const { room, member } = joined
           const targetLang = member.role === 'patient' ? 'ko' : room.patientLang
           registry.touch(room)
-          broadcast(room, {
-            type: 'message',
-            id: randomUUID(),
-            role: member.role,
-            lang: member.lang,
-            text: command.text,
-            translation: {
-              lang: targetLang,
-              text: mockTranslate(command.text, member.lang, targetLang),
-            },
-            ts: Date.now(),
+          const said = command.text
+          const saidBy = member
+          enqueueBroadcast(room, async () => {
+            broadcast(room, {
+              type: 'message',
+              id: randomUUID(),
+              role: saidBy.role,
+              lang: saidBy.lang,
+              text: said,
+              translation: {
+                lang: targetLang,
+                text: await translateText(said, saidBy.lang, targetLang),
+              },
+              ts: Date.now(),
+            })
           })
           if (member.role === 'patient') scheduleBotReply(room)
           break

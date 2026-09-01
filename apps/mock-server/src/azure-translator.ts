@@ -86,6 +86,8 @@ function mapStatus(status: number): TranslationFailureKind {
 /** Azure 에러 본문(`{"error":{"code":…,"message":…}}`)에서 메시지만 뽑아낸다. */
 function describeErrorBody(body: string): string {
   try {
+    // 실시간 이벤트가 아니라 외부 번역 API의 HTTP 에러 본문이다. realtime 스키마의 대상 밖.
+    // eslint-disable-next-line @thegame/no-realtime-event-parse
     const parsed: unknown = JSON.parse(body)
     if (parsed && typeof parsed === 'object' && 'error' in parsed) {
       const error = (parsed as { error?: { message?: unknown } }).error

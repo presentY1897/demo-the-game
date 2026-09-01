@@ -87,3 +87,7 @@ export const parseCaptionEvent = (raw: string): ParseResult<CaptionEvent> =>
 
 export const parseConversationEvent = (raw: string): ParseResult<ConversationEvent> =>
   parseWith(conversationEventSchema, raw)
+
+/** 서버 수신용 — 클라이언트가 보낸 원본 프레임을 파싱한다 (파싱은 realtime에서만) */
+export const parseClientCommand = (raw: string): ParseResult<ClientCommand> =>
+  parseWith(clientCommandSchema, raw)

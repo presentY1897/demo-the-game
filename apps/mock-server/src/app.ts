@@ -58,6 +58,8 @@ async function readJsonBody(req: IncomingMessage): Promise<BodyResult> {
   const raw = Buffer.concat(chunks).toString('utf8').trim()
   if (raw === '') return { ok: true, value: {} }
   try {
+    // 실시간 이벤트가 아니라 HTTP 요청 본문이다. 형태 검증은 라우팅에서 realtime의 zod가 한다.
+    // eslint-disable-next-line @thegame/no-realtime-event-parse
     return { ok: true, value: JSON.parse(raw) }
   } catch {
     return { ok: false, message: 'request body is not valid JSON' }

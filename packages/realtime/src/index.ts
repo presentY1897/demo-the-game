@@ -8,6 +8,7 @@ export {
   participantRoleSchema,
   parseCaptionEvent,
   parseConversationEvent,
+  parseClientCommand,
   type CaptionEvent,
   type ConversationEvent,
   type ClientCommand,
