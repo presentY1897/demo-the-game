@@ -1,0 +1,58 @@
+# Render Blueprint — apps/mock-server (ADR-0006 / S07)
+#
+# Render 대시보드에서 "New → Blueprint"로 이 저장소를 연결하면 이 파일 하나로
+# 서비스가 생성된다. 값이 비밀인 환경변수는 여기 적지 않고 `sync: false`로 선언만
+# 해서 대시보드에서 넣게 한다 — 저장소에 비밀값을 두지 않는다.
+services:
+  - type: web
+    name: thegame-mock-server
+    runtime: node
+    plan: free              # 무료 웹 서비스. 15분 무트래픽 시 슬립 → 콜드스타트(ADR-0006)
+    region: singapore       # 한국에서 가장 가까운 무료 리전
+    branch: main
+    autoDeploy: true
+    # 목 서버와 무관한 커밋(웹 3종·문서)으로는 재배포하지 않는다
+    buildFilter:
+      paths:
+        - apps/mock-server/**
+        - packages/realtime/**
+        - package.json
+        - pnpm-lock.yaml
+        - pnpm-workspace.yaml
+        - render.yaml
+
+    # pnpm 전용(CLAUDE.md). packageManager 필드를 corepack이 그대로 따른다.
+    # `--filter @thegame/mock-server...`는 목 서버와 그 워크스페이스 의존만 설치한다
+    # — Expo/Next/Storybook까지 받으면 무료 인스턴스의 빌드가 길어진다.
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --filter @thegame/mock-server...
+    # tsx가 TS를 그대로 실행한다(별도 컴파일 산출물 없음)
+    startCommand: pnpm --filter @thegame/mock-server start
+
+    # 슬립에서 깨어난 뒤 준비 완료 판정에 쓰인다. 이 경로는 CORS와 무관하게 200을 준다.
+    healthCheckPath: /health
+
+    envVars:
+      # 루트 package.json의 engines(>=22)와 맞춘다
+      - key: NODE_VERSION
+        value: "22.20.0"
+
+      # ── CORS 화이트리스트 (S07) ─────────────────────────────────────────
+      # 쉼표로 구분한 오리진 목록. 배포 후 Vercel 도메인이 정해지면 대시보드에서 채운다.
+      #   예) https://thegame-live-demo.vercel.app,https://thegame-product.vercel.app
+      # 비워 두면 예전처럼 `*`(전체 허용)로 동작한다 — 로컬 개발 호환.
+      # Vercel 프리뷰 배포까지 열려면 `https://*.vercel.app`처럼 한 조각 와일드카드를 쓸 수 있다
+      # (누구나 vercel.app에 배포할 수 있으니 데모 한정으로만 쓴다).
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+      # ── 선택: 실번역(S12 / ADR-0007) ────────────────────────────────────
+      # 넣지 않아도 서버는 정상 동작한다(사전 매칭 + `[demo]` 폴백).
+      # AZURE_TRANSLATOR_KEY는 비밀이다 — 반드시 대시보드에서만 입력한다.
+      - key: AZURE_TRANSLATOR_KEY
+        sync: false
+      - key: AZURE_TRANSLATOR_REGION
+        sync: false
+      - key: AZURE_TRANSLATOR_ENDPOINT
+        sync: false
+      - key: AZURE_TRANSLATOR_TIMEOUT_MS
+        sync: false

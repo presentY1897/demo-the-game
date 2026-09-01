@@ -70,3 +70,19 @@ CHROME_PATH=/path/to/chrome node apps/product/scripts/make-images.mjs
 
 모바일 Lighthouse 측정·개선 기록은 [`docs/perf/002-product-lighthouse.md`](../../docs/perf/002-product-lighthouse.md).
 **한글 웹폰트를 의도적으로 싣지 않는다** — 이유와 되돌리는 방법이 그 문서에 있다.
+
+## 배포 (Vercel)
+
+`output: 'export'` 정적 산출물을 Vercel에 올린다. 설정은 `vercel.json`에 있고,
+클릭 순서는 [S07 배포 절차](../../docs/specs/S07-deployment.md#배포-절차-재현-가능--이-순서대로).
+
+| 항목 | 값 |
+|---|---|
+| Root Directory | `apps/product` (모노레포 밖 파일 포함 옵션은 켜 둔다) |
+| Framework Preset | Next.js (자동 감지 — `output: 'export'` 산출물 `out/`을 Vercel이 알아서 서빙한다) |
+| 설치 | `pnpm install --frozen-lockfile` |
+| 빌드 | `pnpm --filter @thegame/product build` |
+
+환경변수 2개(`NEXT_PUBLIC_SITE_URL`·`NEXT_PUBLIC_DEMO_URL`)는 위 [환경변수](#환경변수) 표 그대로다.
+**둘 다 빌드 시점에 정적 HTML로 구워진다** — 첫 배포로 도메인을 확인한 뒤 값을 넣고
+한 번 더 Redeploy 해야 canonical·hreflang·OG·sitemap이 실제 도메인을 가리킨다.

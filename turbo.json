@@ -3,7 +3,8 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "out/**", "storybook-static/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "out/**", "storybook-static/**"],
+      "env": ["NEXT_PUBLIC_*", "EXPO_PUBLIC_*"]
     },
     "dev": {
       "cache": false,
