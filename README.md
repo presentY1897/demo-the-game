@@ -2,6 +2,25 @@
 
 더게임 프론트엔드 포지션 지원을 위한 데모 프로젝트입니다.
 
+## 둘러보기
+
+| | 링크 | 무엇 |
+|---|---|---|
+| 제품 홈페이지 | **https://thegame-product.vercel.app** | Symposia·CareTalk 소개, ko/en |
+| 라이브 데모 | **https://thegame-live-demo.vercel.app** | 실시간 자막·대화 통역 (실제로 동작합니다) |
+| 디자인 시스템 | **https://thegame-storybook.vercel.app** | Storybook |
+| 목 서버 | https://thegame-mock-server.onrender.com/health | SSE/WS 백엔드 헬스 체크 |
+
+**라이브 데모를 보는 법** — 목 서버가 무료 플랜이라 15분 유휴 후 잠들고, 첫 접속에
+수십 초가 걸릴 수 있습니다. 세션은 자동 재생되지 않습니다(실제 학회처럼 운영자가 시작합니다).
+
+1. [운영 콘솔](https://thegame-live-demo.vercel.app/console)에서 세션을 **시작**하고, 뜬 입장 코드를 복사
+2. 다른 탭에서 [홈](https://thegame-live-demo.vercel.app)의 "세션 코드로 입장"에 붙여넣으면 자막이 흐릅니다
+3. CareTalk은 한 탭에서 "새 대화 시작"(의료진) → 나온 **초대 코드/QR**을 다른 탭에서
+   "초대 코드로 입장"(환자)으로 넣으면 두 기기 대화가 됩니다. 혼자 보실 땐 환자로만 들어가면
+   봇이 의료진을 대행합니다.
+4. [관리자 화면](https://thegame-live-demo.vercel.app/admin)에서 열린 상담 현황을 볼 수 있습니다.
+
 ## 배경
 
 지원 시점에 더게임의 제품과 홈페이지는 공개돼 있지 않았습니다(제품 출시 전 단계로 추정).

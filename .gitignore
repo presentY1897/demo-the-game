@@ -27,3 +27,6 @@ C:\\*
 # 자막 리렌더 측정(S08 / docs/perf/001)의 프로파일링 빌드와 원자료
 dist-profile/
 perf-caption-*.json
+
+# Vercel CLI 링크 정보
+.vercel

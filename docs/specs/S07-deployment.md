@@ -341,3 +341,67 @@ Render → Environment에 `AZURE_TRANSLATOR_KEY`(+ 지역 리소스면 `AZURE_TR
 - `S07`이 예고한 "`config.ts`의 WS_BASE 유도 로직이 https 기준으로 동작하는지 확인"의
   답: **유도 식 자체는 옳았고(`http`→`ws` 접두 치환이라 `https`→`wss`가 된다),
   진짜 문제는 그 앞단이었다** — 환경변수가 애초에 번들에 들어가지 않았다(위 구현 메모 1).
+
+## 배포 결과 (2026-09-01)
+
+실제로 배포했다. Vercel은 CLI(`vercel deploy --prod`)로, Render는 사용자가 Blueprint로 올렸다.
+
+| 대상 | URL | 프로젝트 설정 |
+|---|---|---|
+| product | https://thegame-product.vercel.app | Root `apps/product` · `NEXT_PUBLIC_SITE_URL`·`NEXT_PUBLIC_DEMO_URL` |
+| live-demo | https://thegame-live-demo.vercel.app | Root `apps/live-demo` · `EXPO_PUBLIC_API_URL`·`EXPO_PUBLIC_APP_URL` |
+| Storybook | https://thegame-storybook.vercel.app | Root `packages/ui` · 환경변수 없음 |
+| mock-server | https://thegame-mock-server.onrender.com | Render 무료 · `/health` |
+
+### 절차에서 달라진 점 — "Include files outside of the Root Directory"
+
+명세의 절차는 Vercel Import 화면의 그 체크박스를 켜라고 했는데 **현재 UI에는 없다.**
+대신 **Root Directory만 지정하면 저장소 전체가 업로드되고 빌드 cwd만 그 디렉토리가 된다** —
+pnpm 워크스페이스 의존성이 그대로 해석된다.
+
+CLI로 할 때는 주의가 필요하다. 앱 디렉토리에서 `vercel link`를 하면 그 디렉토리만
+업로드돼(120파일) `pnpm install --frozen-lockfile`이 실패한다. 실패를 실제로 재현했다.
+올바른 방법은 **프로젝트의 `rootDirectory`를 앱 디렉토리로 설정하고, 저장소 루트에서
+`vercel deploy`** 하는 것이다.
+
+```bash
+# 프로젝트 생성 시 rootDirectory를 함께 지정
+curl -X POST "https://api.vercel.com/v11/projects?teamId=<team>" \
+  -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{"name":"thegame-product","rootDirectory":"apps/product"}'
+
+# 저장소 루트에 .vercel/project.json을 두고 루트에서 배포
+vercel deploy --prod --yes
+```
+
+`EXPO_PUBLIC_*`는 **빌드 시점에 번들로 구워지므로**, 값을 추가·변경한 뒤에는 반드시
+재배포해야 한다(`--force`로 빌드 캐시 무시).
+
+### 스모크 체크리스트 결과
+
+배포 환경에서 헤드리스 브라우저로 실행했다. **10/10 통과, 콘솔 에러 0건.**
+
+| # | 항목 | 결과 |
+|---|---|---|
+| 1 | 4개 링크가 새 브라우저(로그인 없음)에서 열린다 | ✅ 전부 200 |
+| 2 | 딥링크 직접 진입 (`/`·`/session/:id`·`/room/:code`·`/console`·`/admin`·미지 경로) | ✅ 6경로 전부 200 — SPA rewrite 동작 |
+| 3 | 번들에 환경변수가 실제로 박혔다 | ✅ `thegame-mock-server.onrender.com`·`thegame-live-demo.vercel.app` 각 1회 |
+| 4 | 콘솔에서 세션 생성 → 시작 | ✅ `YFWBAG` |
+| 5 | 참가자 딥링크로 자막 수신 | ✅ |
+| 6 | 자막 화면 새로고침 유지 | ✅ (주소는 소문자로 정규화됨) |
+| 7 | 의료진 방 생성 + 초대 코드 발급 | ✅ `LEMYK9` |
+| 8 | 환자 링크 입장 → **2기기 실대화** (`wss://` 왕복) | ✅ |
+| 9 | 관리자 현황에 방 노출, 대화 내용 미노출 | ✅ |
+| 10 | 미지 경로 → 홈 정규화 | ✅ |
+| 11 | product SEO가 배포 도메인으로 나간다 | ✅ canonical·hreflang·OG·sitemap 전부 |
+
+### 남은 것
+
+- **`ALLOWED_ORIGINS` 미설정** — 현재 CORS는 `*`다(`access-control-allow-origin: *` 확인).
+  Render 대시보드 → Environment → `ALLOWED_ORIGINS=https://thegame-live-demo.vercel.app`
+  → Save. 저장하면 자동 재시작되고 로그에 `[mock-server] CORS: … 만 허용`이 찍힌다.
+  Render API 키가 없어 이 단계는 수행하지 못했다.
+- **콜드스타트 확인** — 15분 유휴 후 첫 접속을 일부러 발생시켜 자막 재생이 재개되는지는
+  시간이 필요해 확인하지 못했다.
+- **README 데모 GIF** — 미작성.
+

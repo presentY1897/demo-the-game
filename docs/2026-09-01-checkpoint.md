@@ -307,7 +307,7 @@ S12(번역) → S07(배포) → S08·S09(성능)**. S10은 병행 가능, S11은
 | 제품 구조 (실사용 여정) | ⬜ 없음 | ✅ 코드/QR 입장·역할 진입·URL 딥링크·재접속 복귀 (S01–S03) |
 | UI/UX 설계 | ⚠ 시스템 신뢰성만 | ✅ 스테이지 모드·퀵 리플라이·접근성 패스 (S04·S05·S06) |
 | 운영·관리자 여정 | ⬜ 없음 | ✅ 운영 콘솔·관리자 뷰 (S13·S14) |
-| 배포 · CI | ⬜ 없음 | CI ✅ · 배포는 설정·절차까지 (S10·S07) |
+| 배포 · CI | ⬜ 없음 | ✅ 4개 링크 동작 + CI (S07·S10) |
 | `docs/perf` | ⬜ 0건 | ✅ 2건 (001 자막 리렌더 · 002 product Lighthouse) |
 | `packages/config` eslint | ⬜ 미구현 | ✅ 프리셋 3종 + 프로젝트 커스텀 규칙 2종 (S10) |
 
@@ -359,18 +359,35 @@ Pretendard는 `packages/tokens`의 공유 디자인 토큰이라 product·Storyb
   ([ADR 0010](./adr/0010-aria-props-for-accessibility-state.md), `38af8a3`)
 - **WS 수신 진입점이 직접 `JSON.parse`** 했다 — "파싱은 realtime에서만" 규칙 위반. (`8e5f7e7`)
 
+### 배포
+
+Vercel 3종은 CLI로, mock-server는 Render Blueprint로 올렸다. 절차에서 하나 달랐다 —
+명세가 켜라고 한 Vercel의 *"Include files outside of the Root Directory"* 체크박스는
+**현재 UI에 없고**, Root Directory만 지정하면 저장소 전체가 업로드된다. CLI로 할 때는
+앱 디렉토리에서 링크하면 그 디렉토리만 올라가 워크스페이스 설치가 실패하므로,
+`rootDirectory`를 설정하고 **저장소 루트에서** 배포해야 한다(실패를 실제로 재현하고 고쳤다).
+
+| 대상 | URL |
+|---|---|
+| 제품 홈페이지 | https://thegame-product.vercel.app |
+| 라이브 데모 | https://thegame-live-demo.vercel.app |
+| 디자인 시스템 | https://thegame-storybook.vercel.app |
+| 목 서버 | https://thegame-mock-server.onrender.com/health |
+
 ### 통합 검증
 
 각 작업은 자기 브랜치에서 검증했고, 전부 합친 뒤 **헤드리스 브라우저로 통합 스모크를 한 번 더**
 돌렸다: 콘솔 세션 생성 → 시작 → 참가자 딥링크 자막 수신 → 새로고침 유지 → 의료진 방 생성 →
 환자 링크 입장 → **2기기 실대화** → 관리자 현황 반영(대화 내용 미노출) → 미지 경로 정규화.
-**10/10 통과, 콘솔 에러 0건.**
+**10/10 통과, 콘솔 에러 0건.** 같은 시나리오를 **배포 환경에서도** 다시 돌려
+`wss://` 왕복까지 10/10 통과를 확인했다(S07 하단 체크리스트).
 
 ### 남은 것 — 전부 이 환경에서 불가능한 검증
 
-1. **배포 링크 4종과 데모 GIF** (S11) — Render/Vercel 계정 연결과 첫 배포는 사용자 몫으로
-   정했다(9/1). 절차는 [S07](./specs/S07-deployment.md)에 클릭 순서로 있다. URL이 나오면
-   루트 README 상단과 `NEXT_PUBLIC_DEMO_URL`·`EXPO_PUBLIC_APP_URL`을 채우고 스모크 체크리스트를 돌린다.
+1. **CORS 좁히기와 콜드스타트 확인** (S07) — 배포는 끝났고(4개 링크 동작, 배포 환경
+   스모크 10/10) README 상단에 링크를 넣었다. 남은 건 Render 대시보드에서
+   `ALLOWED_ORIGINS`를 넣어 현재 `*`인 CORS를 좁히는 것과, 15분 유휴 후 콜드스타트
+   확인이다. Render API 키가 없어 수행하지 못했다. 데모 GIF도 미작성.
 2. **스크린리더 3여정 완주 체크리스트** (S06) — VoiceOver/TalkBack 실기기 필요. 자동 검증은
    전부 통과했고, 남은 건 "읽는 순서와 문장이 쓸 만한가"라는 사람의 판단이다.
 3. **Azure 실키 스모크** (S12) — 키 필요. 키 없이 도는 경로는 테스트로 고정돼 있다.

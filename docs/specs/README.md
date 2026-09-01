@@ -26,11 +26,11 @@
 | [S04](./S04-stage-mode.md) | Symposia 스테이지 모드 | UX | — | 완료 `11d8c4f` |
 | [S05](./S05-quick-reply.md) | CareTalk 퀵 리플라이 | UX | S01, S02 | 완료 `0361ec2` |
 | [S06](./S06-accessibility.md) | 접근성 패스 | UX | S02 권장 | 완료* `4e86b09·72b7188·38af8a3` |
-| [S07](./S07-deployment.md) | 배포 파이프라인 (Render + Vercel) | 인프라 | S01–S03 권장 | 설정 완료 `98149e7` |
+| [S07](./S07-deployment.md) | 배포 파이프라인 (Render + Vercel) | 인프라 | S01–S03 권장 | 완료* `98149e7` |
 | [S08](./S08-perf-caption-rerender.md) | perf: 자막 리렌더 측정·개선 | 성능 | S01–S04 | 완료 `36c79df` |
 | [S09](./S09-perf-lighthouse.md) | perf: product Lighthouse | 성능 | — | 완료 `9a85a3a·f9361ec` |
 | [S10](./S10-quality-infra.md) | 품질 인프라 (eslint·CI·테스트) | 인프라 | — | 완료 `9891730·56da712` |
-| [S11](./S11-docs-corporate.md) | corporate 접기 반영·문서 정리 | 문서 | S07 일부 | 부분 `0eb3144·23bb868` |
+| [S11](./S11-docs-corporate.md) | corporate 접기 반영·문서 정리 | 문서 | S07 일부 | 완료* `0eb3144·23bb868` |
 | [S12](./S12-translation-api.md) | 번역 API 연동 (Azure Translator F0) | 기능 | — | 완료* `ab8ae35·8e5f7e7` |
 | [S13](./S13-symposia-console.md) | Symposia 운영 콘솔 (간사·발표자) | 구조 | S01–S03, F01 | 완료 `c97ccfd·ac78c4d` |
 | [S14](./S14-caretalk-admin.md) | CareTalk 관리자 뷰 | 구조 | S01, F02 | 완료 `c97ccfd·f8afb37` |
@@ -44,10 +44,10 @@
     자동 검증(axe-core 라이트 138→0 · 다크 132→0, 대비 유닛 테스트, 터치 타깃 51→0,
     글자 확대 잘림 60→0)은 전부 통과했고, 남은 건 "읽는 순서와 문장이 쓸 만한가"다.
   - S12: Azure 실키 스모크 — 키 필요. 키 없이 도는 경로(사전 → `[demo]`)는 테스트로 고정돼 있다.
-- **설정 완료** — S07은 저장소에 있어야 할 것(`render.yaml`·`vercel.json`·CORS·환경변수·절차)이
-  전부 들어갔고, 실제 계정 연결과 첫 배포는 사용자 몫으로 남겼다(사용자 확인, 9/1).
-- **부분** — S11은 product 회사 소개·SEO 세트·앱별 README까지 끝냈고,
-  루트 README의 **배포 링크 4종과 데모 GIF**는 배포 URL이 나와야 채울 수 있다.
+  - S07: 배포 완료(4개 링크 동작, 스모크 10/10). 남은 건 Render 대시보드에서
+    `ALLOWED_ORIGINS`를 넣어 CORS를 좁히는 것과, 15분 유휴 후 콜드스타트 확인이다.
+    Render API 키가 없어 수행하지 못했다 — 절차는 S07 하단.
+  - S11: 루트 README에 배포 링크 4종과 둘러보기 안내를 넣었다. **데모 GIF만 미작성**이다.
 
 ## 제안 순서
 
