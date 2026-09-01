@@ -10,7 +10,8 @@
     "ios": "expo start --ios",
     "build": "expo export --platform web",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.0",
