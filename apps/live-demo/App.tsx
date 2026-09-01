@@ -1,13 +1,19 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StatusBar } from 'expo-status-bar'
-import { SafeAreaView, StyleSheet } from 'react-native'
+import { SafeAreaView } from 'react-native'
 import { Screen } from './src/components/Screen'
 import { useT } from './src/i18n'
 import { useNav } from './src/navigation'
 import { CareTalkScreen } from './src/screens/CareTalkScreen'
 import { HomeScreen } from './src/screens/HomeScreen'
 import { SymposiaScreen } from './src/screens/SymposiaScreen'
-import { color } from './src/theme'
+import {
+  createThemedStyles,
+  statusBarStyle,
+  ThemeProvider,
+  useTheme,
+  useThemedStyles,
+} from './src/theme'
 
 const queryClient = new QueryClient()
 
@@ -37,17 +43,28 @@ function Router() {
   }
 }
 
+function AppShell() {
+  const { mode } = useTheme()
+  const styles = useThemedStyles(stylesFor)
+
+  return (
+    <SafeAreaView style={styles.root}>
+      <StatusBar style={statusBarStyle(mode)} />
+      <Router />
+    </SafeAreaView>
+  )
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaView style={styles.root}>
-        <StatusBar style="dark" />
-        <Router />
-      </SafeAreaView>
+      <ThemeProvider>
+        <AppShell />
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }
 
-const styles = StyleSheet.create({
+const stylesFor = createThemedStyles((color) => ({
   root: { flex: 1, backgroundColor: color.bg },
-})
+}))

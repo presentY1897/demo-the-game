@@ -13,9 +13,10 @@ import { ConnectionBadge } from '../components/ConnectionBadge'
 import { useConversation } from '../hooks/useConversation'
 import { useT } from '../i18n'
 import { useConversationStore, type ChatMessage } from '../stores/conversationStore'
-import { color, font, radius, space } from '../theme'
+import { createThemedStyles, font, radius, space, useTheme, useThemedStyles } from '../theme'
 
 function MessageBubble({ message }: { message: ChatMessage }) {
+  const styles = useThemedStyles(stylesFor)
   const mine = message.role === 'patient'
   return (
     <View style={[styles.bubbleRow, mine ? styles.bubbleRowMine : styles.bubbleRowOther]}>
@@ -31,6 +32,8 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
 export function CareTalkScreen() {
   const t = useT()
+  const { color } = useTheme()
+  const styles = useThemedStyles(stylesFor)
   const [draft, setDraft] = useState('')
   const listRef = useRef<FlatList<ChatMessage>>(null)
 
@@ -99,7 +102,7 @@ export function CareTalkScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const stylesFor = createThemedStyles((color) => ({
   screen: { flex: 1 },
   toolbar: {
     flexDirection: 'row',
@@ -154,4 +157,4 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: { opacity: 0.5 },
   sendText: { color: color.onPrimary, fontWeight: '700', fontSize: font.sm },
-})
+}))

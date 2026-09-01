@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { FlatList, Pressable, Text, View } from 'react-native'
 import { ConnectionBadge } from '../components/ConnectionBadge'
 import { useCaptionStream } from '../hooks/useCaptionStream'
 import { useT } from '../i18n'
 import { useCaptionStore, type CaptionEntry } from '../stores/captionStore'
-import { color, font, radius, space } from '../theme'
+import { createThemedStyles, font, radius, space, useThemedStyles } from '../theme'
 
 const FONT_SCALE_MIN = 0.85
 const FONT_SCALE_MAX = 1.6
@@ -19,6 +19,7 @@ function CaptionRow({
   targetLang: string
   scale: number
 }) {
+  const styles = useThemedStyles(stylesFor)
   const translation = entry.translations[targetLang]
   return (
     <View style={styles.captionRow}>
@@ -43,6 +44,7 @@ function CaptionRow({
 
 export function SymposiaScreen({ sessionId }: { sessionId: string }) {
   const t = useT()
+  const styles = useThemedStyles(stylesFor)
   const [lang, setLang] = useState('en')
   const [scale, setScale] = useState(1)
   const [autoScroll, setAutoScroll] = useState(true)
@@ -146,7 +148,7 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
   )
 }
 
-const styles = StyleSheet.create({
+const stylesFor = createThemedStyles((color) => ({
   screen: { flex: 1 },
   toolbar: {
     flexDirection: 'row',
@@ -211,4 +213,4 @@ const styles = StyleSheet.create({
   },
   closedText: { color: color.danger, fontSize: font.sm },
   retryText: { color: color.primary, fontSize: font.sm, fontWeight: '700' },
-})
+}))

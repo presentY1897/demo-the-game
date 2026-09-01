@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native'
 import type { ConnectionStatus } from '@thegame/realtime'
 import { useT } from '../i18n'
-import { color, font, radius } from '../theme'
+import { font, radius, useTheme, type ThemeColors } from '../theme'
 
-const toneFor = (status: ConnectionStatus): string => {
+const toneFor = (status: ConnectionStatus, color: ThemeColors): string => {
   switch (status.state) {
     case 'open':
       return color.success
@@ -19,7 +19,8 @@ const toneFor = (status: ConnectionStatus): string => {
 
 export function ConnectionBadge({ status }: { status: ConnectionStatus }) {
   const t = useT()
-  const tone = toneFor(status)
+  const { color } = useTheme()
+  const tone = toneFor(status, color)
   const label =
     status.state === 'reconnecting'
       ? t('connection.reconnecting', { attempt: status.attempt })
@@ -33,6 +34,7 @@ export function ConnectionBadge({ status }: { status: ConnectionStatus }) {
   )
 }
 
+// 색이 status에서 나오므로(테마 무관 구조) 시트는 정적으로 둔다
 const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',

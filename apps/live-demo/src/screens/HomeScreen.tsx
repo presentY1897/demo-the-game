@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native'
 import { API_BASE } from '../config'
 import { useT } from '../i18n'
 import { useNav } from '../navigation'
-import { color, font, radius, space } from '../theme'
+import { createThemedStyles, font, radius, space, useTheme, useThemedStyles } from '../theme'
 
 interface SessionSummary {
   id: string
@@ -25,6 +25,8 @@ export function HomeScreen() {
   const t = useT()
   const navigate = useNav((state) => state.navigate)
   const sessionsQuery = useQuery({ queryKey: ['sessions'], queryFn: fetchSessions, retry: 1 })
+  const { color } = useTheme()
+  const styles = useThemedStyles(stylesFor)
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -77,7 +79,7 @@ export function HomeScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const stylesFor = createThemedStyles((color) => ({
   screen: { flex: 1 },
   content: { padding: space[5], gap: space[4] },
   brand: { fontSize: font['2xl'], fontWeight: '800', color: color.primary },
@@ -115,4 +117,4 @@ const styles = StyleSheet.create({
     fontSize: font.xl,
     color: color.textMuted,
   },
-})
+}))
