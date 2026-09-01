@@ -53,7 +53,8 @@
 
 .danger {
   background: var(--tg-color-danger);
-  color: #ffffff;
+  /* 다크에서 danger는 red[400]이라 흰 글자는 2.19:1이다 — onPrimary가 모드별로 맞는 값을 준다 */
+  color: var(--tg-color-on-primary);
 }
 .danger:hover:not(:disabled) {
   filter: brightness(0.92);

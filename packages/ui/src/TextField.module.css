@@ -13,7 +13,8 @@
 
 .input {
   padding: 10px 14px;
-  border: 1px solid var(--tg-color-border);
+  /* 컨트롤 경계는 WCAG 1.4.11(3:1) 대상이라 장식용 border가 아닌 borderStrong을 쓴다 */
+  border: 1px solid var(--tg-color-border-strong);
   border-radius: var(--tg-radius-md);
   background: var(--tg-color-surface);
   color: var(--tg-color-text);
