@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { FlatList, Pressable, Text, View } from 'react-native'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { FlatList, Pressable, Text, View, type ListRenderItemInfo } from 'react-native'
 import { ActionButton } from '../components/ActionButton'
 import { CaptionRow } from '../components/CaptionRow'
 import { ConnectionBadge } from '../components/ConnectionBadge'
 import { KeepScreenAwake } from '../components/KeepScreenAwake'
-import { StageCaption } from '../components/StageCaption'
+import { LiveCaptionLine } from '../components/LiveCaptionLine'
+import { LiveStageCaption } from '../components/StageCaption'
 import { useCaptionStream } from '../hooks/useCaptionStream'
 import { useT } from '../i18n'
 import { useNav } from '../navigation'
-import { selectStageView } from '../stores/captionSelectors'
 import { useCaptionStore, type CaptionEntry } from '../stores/captionStore'
 import { useStageMode } from '../stores/stageStore'
 import { createThemedStyles, font, radius, space, useThemedStyles } from '../theme'
@@ -38,7 +38,14 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
 
   const stage = useStageMode((state) => state.enabled)
   const toggleStage = useStageMode((state) => state.toggle)
-  const stageView = useMemo(() => selectStageView(entries), [entries])
+
+  // 셀 렌더러를 고정한다 — 매 렌더마다 새 함수를 주면 memo된 줄의 props가 흔들린다
+  const renderRow = useCallback(
+    ({ item }: ListRenderItemInfo<CaptionEntry>) => (
+      <CaptionRow entry={item} targetLang={lang} scale={scale} />
+    ),
+    [lang, scale],
+  )
 
   // 스테이지 모드는 이 화면의 맥락(강연장 시청) 전용이라 화면을 벗어나면 반드시 풀린다 —
   // 강제 다크와 keep-awake가 홈/CareTalk까지 따라가지 않게.
@@ -127,20 +134,23 @@ export function SymposiaScreen({ sessionId }: { sessionId: string }) {
         >
           <FlatList
             ref={listRef}
+            style={styles.list}
             data={entries}
             keyExtractor={(entry) => entry.id}
-            renderItem={({ item }) => <CaptionRow entry={item} targetLang={lang} scale={scale} />}
+            renderItem={renderRow}
             contentContainerStyle={styles.listContent}
             onScrollBeginDrag={() => setAutoScroll(false)}
             onContentSizeChange={() => {
               if (autoScroll) listRef.current?.scrollToEnd({ animated: true })
             }}
           />
+          {/* 진행 중인 문장은 리스트 밖에 고정된 한 줄로 — 스토어를 스스로 구독한다 */}
+          <LiveCaptionLine targetLang={lang} scale={scale} />
         </View>
 
         {stage && (
           <View style={styles.stageOverlay}>
-            <StageCaption view={stageView} targetLang={lang} scale={scale} />
+            <LiveStageCaption targetLang={lang} scale={scale} />
           </View>
         )}
 
@@ -244,6 +254,7 @@ const stylesFor = createThemedStyles((color) => ({
   fontButtonText: { fontSize: font.sm, fontWeight: '700', color: color.text },
   captionArea: { flex: 1 },
   listWrap: { flex: 1 },
+  list: { flex: 1 },
   stageOverlay: {
     position: 'absolute',
     top: 0,

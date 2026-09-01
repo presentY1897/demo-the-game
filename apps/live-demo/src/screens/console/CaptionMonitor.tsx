@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react'
-import { FlatList, Pressable, Text, View } from 'react-native'
+import { useCallback, useRef, useState } from 'react'
+import { FlatList, Pressable, Text, View, type ListRenderItemInfo } from 'react-native'
 import { CaptionRow } from '../../components/CaptionRow'
 import { ConnectionBadge } from '../../components/ConnectionBadge'
+import { LiveCaptionLine } from '../../components/LiveCaptionLine'
 import { useCaptionStream } from '../../hooks/useCaptionStream'
 import { useT } from '../../i18n'
 import { useCaptionStore, type CaptionEntry } from '../../stores/captionStore'
@@ -33,6 +34,16 @@ export function CaptionMonitor({ sessionId, targetLangs }: CaptionMonitorProps) 
   useCaptionStream(sessionId, lang)
   const entries = useCaptionStore((state) => state.entries)
   const status = useCaptionStore((state) => state.status)
+  // 부분 자막 내용이 아니라 **있는지 여부**만 구독한다 — 단어마다 모니터가 리렌더되지
+  // 않으면서도 "대기 중" 안내를 제때 치울 수 있다 (docs/perf/001)
+  const hasPartial = useCaptionStore((state) => state.partial !== null)
+
+  const renderRow = useCallback(
+    ({ item }: ListRenderItemInfo<CaptionEntry>) => (
+      <CaptionRow entry={item} targetLang={lang} scale={MONITOR_SCALE} />
+    ),
+    [lang],
+  )
 
   return (
     <View style={styles.wrap}>
@@ -57,20 +68,22 @@ export function CaptionMonitor({ sessionId, targetLangs }: CaptionMonitorProps) 
       </View>
 
       <View style={styles.viewport}>
-        {entries.length === 0 ? (
+        {entries.length === 0 && !hasPartial ? (
           <Text style={styles.waiting}>{t('console.monitor.waiting')}</Text>
         ) : (
-          <FlatList
-            ref={listRef}
-            data={entries}
-            keyExtractor={(entry) => entry.id}
-            renderItem={({ item }) => (
-              <CaptionRow entry={item} targetLang={lang} scale={MONITOR_SCALE} />
-            )}
-            contentContainerStyle={styles.listContent}
-            // 모니터는 "지금 나가는 자막"이 일이라 언제나 최신에 붙어 있는다
-            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
-          />
+          <>
+            <FlatList
+              ref={listRef}
+              style={styles.list}
+              data={entries}
+              keyExtractor={(entry) => entry.id}
+              renderItem={renderRow}
+              contentContainerStyle={styles.listContent}
+              // 모니터는 "지금 나가는 자막"이 일이라 언제나 최신에 붙어 있는다
+              onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
+            />
+            <LiveCaptionLine targetLang={lang} scale={MONITOR_SCALE} compact />
+          </>
         )}
       </View>
     </View>
@@ -104,6 +117,7 @@ const stylesFor = createThemedStyles((color) => ({
     backgroundColor: color.bg,
     padding: space[3],
   },
+  list: { flex: 1 },
   listContent: { gap: space[3] },
   waiting: { fontSize: font.sm, color: color.textMuted },
 }))

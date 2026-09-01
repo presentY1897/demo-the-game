@@ -61,20 +61,17 @@ describe('resolveThemeMode', () => {
 
 describe('selectStageView', () => {
   it('자막이 없으면 둘 다 null', () => {
-    expect(selectStageView([])).toEqual({ latestFinal: null, partial: null })
+    expect(selectStageView([], null)).toEqual({ latestFinal: null, partial: null })
   })
 
-  it('최신 확정 1건 + 그 뒤의 진행 중 부분 자막만 고른다', () => {
+  it('최신 확정 1건 + 진행 중 부분 자막을 고른다', () => {
     const entries = [
       entry({ id: '1', sourceText: 'first', isFinal: true }),
       entry({ id: '2', sourceText: 'second', isFinal: true, translations: { en: '둘' } }),
-      entry({ id: '3', sourceText: 'third in progress' }),
     ]
+    const partial = entry({ id: '3', sourceText: 'third in progress' })
 
-    expect(selectStageView(entries)).toEqual({
-      latestFinal: entries[1],
-      partial: entries[2],
-    })
+    expect(selectStageView(entries, partial)).toEqual({ latestFinal: entries[1], partial })
   })
 
   it('진행 중 자막이 없으면 확정 1건만 고른다', () => {
@@ -83,51 +80,46 @@ describe('selectStageView', () => {
       entry({ id: '2', sourceText: 'second', isFinal: true }),
     ]
 
-    expect(selectStageView(entries)).toEqual({ latestFinal: entries[1], partial: null })
+    expect(selectStageView(entries, null)).toEqual({ latestFinal: entries[1], partial: null })
   })
 
   it('확정 자막이 아직 없으면 부분 자막만 고른다', () => {
-    const entries = [entry({ id: '1', sourceText: 'opening line' })]
+    const partial = entry({ id: '1', sourceText: 'opening line' })
 
-    expect(selectStageView(entries)).toEqual({ latestFinal: null, partial: entries[0] })
+    expect(selectStageView([], partial)).toEqual({ latestFinal: null, partial })
   })
 
-  it('최신 확정 자막보다 앞선 비확정 항목은 버린다', () => {
+  it('히스토리의 비확정 자리표시자는 확정 자막으로 치지 않는다', () => {
+    // 번역만 먼저 도착한 항목(원문 없음)이 히스토리 끝에 있어도 그 앞의 확정 자막을 고른다
     const entries = [
-      entry({ id: '1', sourceText: 'stale partial' }),
-      entry({ id: '2', sourceText: 'latest final', isFinal: true }),
-    ]
-
-    expect(selectStageView(entries)).toEqual({ latestFinal: entries[1], partial: null })
-  })
-
-  it('번역만 먼저 도착해 원문이 빈 항목은 부분 자막이 아니다', () => {
-    const entries = [
-      entry({ id: '1', sourceText: 'final line', isFinal: true }),
+      entry({ id: '1', sourceText: 'latest final', isFinal: true }),
       entry({ id: '2', translations: { en: 'translation only' } }),
     ]
 
-    expect(selectStageView(entries)).toEqual({ latestFinal: entries[0], partial: null })
+    expect(selectStageView(entries, null)).toEqual({ latestFinal: entries[0], partial: null })
   })
 
-  it('부분 자막이 여러 건이면 가장 최신 것만 고른다', () => {
-    const entries = [
-      entry({ id: '1', sourceText: 'older partial' }),
-      entry({ id: '2', sourceText: 'newest partial' }),
-    ]
+  it('원문이 빈 부분 자막은 보여줄 게 없으므로 버린다', () => {
+    const entries = [entry({ id: '1', sourceText: 'final line', isFinal: true })]
+    const partial = entry({ id: '2', translations: { en: 'translation only' } })
 
-    expect(selectStageView(entries).partial).toBe(entries[1])
+    expect(selectStageView(entries, partial)).toEqual({ latestFinal: entries[0], partial: null })
+  })
+
+  it('스토어의 부분 자막을 그대로(같은 참조로) 넘긴다', () => {
+    const partial = entry({ id: '2', sourceText: 'in progress' })
+
+    expect(selectStageView([], partial).partial).toBe(partial)
   })
 
   it('히스토리를 잘라내지 않는다 — 스토어 배열은 그대로 (뷰만 전환)', () => {
     const entries = [
       entry({ id: '1', sourceText: 'a', isFinal: true }),
       entry({ id: '2', sourceText: 'b', isFinal: true }),
-      entry({ id: '3', sourceText: 'c' }),
     ]
     const snapshot = [...entries]
 
-    selectStageView(entries)
+    selectStageView(entries, entry({ id: '3', sourceText: 'c' }))
 
     expect(entries).toEqual(snapshot)
   })

@@ -116,7 +116,8 @@
       total += 1
       var name = nameOf(node)
       var did = live && (node.flags & PERFORMED_WORK) !== 0
-      if (name === 'CaptionRow') {
+      // 번들러가 memo 안쪽 함수 이름 뒤에 숫자를 붙일 수 있다 (CaptionRow2)
+      if (name.indexOf('CaptionRow') === 0) {
         rows += 1
         if (did) renderedRows += 1
       }

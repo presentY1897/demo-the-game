@@ -1,6 +1,8 @@
+import { useMemo } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { useT } from '../i18n'
-import type { StageView } from '../stores/captionSelectors'
+import { selectStageView, type StageView } from '../stores/captionSelectors'
+import { useCaptionStore } from '../stores/captionStore'
 import { createThemedStyles, font, space, useThemedStyles } from '../theme'
 
 /** 스테이지 모드 기본 타이포 — 히스토리 뷰(font.md=16)보다 크게 잡는다 */
@@ -57,6 +59,21 @@ export function StageCaption({ view, targetLang, scale }: StageCaptionProps) {
       )}
     </ScrollView>
   )
+}
+
+/**
+ * 스테이지 모드의 자막 — 스토어를 **여기서** 구독한다.
+ *
+ * 화면(`SymposiaScreen`)이 구독하면 부분 자막 한 단어마다 화면 전체와 그 아래
+ * 자막 리스트까지 리렌더된다(스테이지 모드에서도 리스트는 마운트된 채로 덮여 있다).
+ * 구독을 이 잎 컴포넌트로 내려 리렌더 범위를 "지금 보이는 자막"으로 묶는다 (docs/perf/001).
+ */
+export function LiveStageCaption({ targetLang, scale }: Omit<StageCaptionProps, 'view'>) {
+  const entries = useCaptionStore((state) => state.entries)
+  const partial = useCaptionStore((state) => state.partial)
+  const view = useMemo(() => selectStageView(entries, partial), [entries, partial])
+
+  return <StageCaption view={view} targetLang={targetLang} scale={scale} />
 }
 
 const stylesFor = createThemedStyles((color) => ({

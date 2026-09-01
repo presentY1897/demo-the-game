@@ -9,13 +9,16 @@ export interface StageView {
 
 /**
  * 스테이지 모드가 보여줄 것만 고른다 — "최신 확정 1건 + 진행 중 부분 자막".
- * entries는 도착 순(오래된 → 최신)이므로 뒤에서부터 훑고,
- * 첫 확정 자막을 만나면 멈춘다. 그 이전의 비확정 항목은 이미 지나간 것이라 버린다.
- * 번역만 먼저 도착해 원문이 빈 항목은 보여줄 게 없으므로 부분 자막으로 치지 않는다.
+ * 히스토리(`entries`)는 도착 순(오래된 → 최신)이므로 뒤에서부터 훑어 첫 확정 자막에서 멈춘다.
+ * 번역만 먼저 도착해 원문이 빈 항목은 보여줄 게 없으므로 건너뛴다.
+ *
+ * 진행 중인 부분 자막은 히스토리에 없고 스토어의 `partial`로 따로 온다(docs/perf/001).
  */
-export function selectStageView(entries: readonly CaptionEntry[]): StageView {
+export function selectStageView(
+  entries: readonly CaptionEntry[],
+  partial: CaptionEntry | null,
+): StageView {
   let latestFinal: CaptionEntry | null = null
-  let partial: CaptionEntry | null = null
 
   for (let i = entries.length - 1; i >= 0; i -= 1) {
     const entry = entries[i]
@@ -24,8 +27,10 @@ export function selectStageView(entries: readonly CaptionEntry[]): StageView {
       latestFinal = entry
       break
     }
-    if (partial === null && entry.sourceText.trim() !== '') partial = entry
   }
 
-  return { latestFinal, partial }
+  return {
+    latestFinal,
+    partial: partial !== null && partial.sourceText.trim() !== '' ? partial : null,
+  }
 }
