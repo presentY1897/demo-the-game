@@ -49,6 +49,93 @@ beforeEach(() => {
   send(session)
 })
 
+describe('세션 메타와 기본 동작', () => {
+  it('session 이벤트로 세션 메타를 세운다', () => {
+    expect(state().session).toEqual({
+      id: 'keynote-01',
+      title: 'Recent Advances',
+      speaker: 'Dr. Kim',
+      sourceLang: 'ko',
+      targetLangs: ['en', 'ja'],
+    })
+    expect(state().ended).toBe(false)
+  })
+
+  it('확정 후 도착한 번역을 같은 항목에 병기로 병합한다', () => {
+    send(
+      caption('c1', '안녕하세요', { isFinal: true }),
+      caption('c1', 'Hello', { lang: 'en', isFinal: true }),
+      caption('c1', 'こんにちは', { lang: 'ja', isFinal: true }),
+    )
+
+    expect(state().entries).toHaveLength(1)
+    expect(state().entries[0]).toMatchObject({
+      sourceText: '안녕하세요',
+      isFinal: true,
+      translations: { en: 'Hello', ja: 'こんにちは' },
+    })
+  })
+
+  it('번역이 원문보다 먼저 와도 항목 하나로 합쳐진다', () => {
+    send(caption('c9', 'Hello', { lang: 'en', isFinal: true }))
+    expect(state().entries[0]).toMatchObject({ sourceText: '', translations: { en: 'Hello' } })
+
+    send(caption('c9', '안녕하세요', { isFinal: true }))
+
+    expect(state().entries).toHaveLength(1)
+    expect(state().entries[0]).toMatchObject({
+      sourceText: '안녕하세요',
+      isFinal: true,
+      translations: { en: 'Hello' },
+    })
+  })
+
+  it('재연결 복구로 앞선 seq가 재생돼도 순서가 유지되고 중복되지 않는다', () => {
+    send(
+      caption('c1', '첫째', { isFinal: true }),
+      caption('c2', '둘째 진행중'),
+      caption('c3', '셋째 진행중'),
+    )
+    // 진행 중인 문장은 히스토리에 쌓이지 않는다 — 마지막 것 하나만 들고 있는다
+    expect(state().entries.map((entry) => entry.id)).toEqual(['c1'])
+    expect(state().partial?.id).toBe('c3')
+
+    // 끊겼다 붙으면 서버가 lastEventId 이후를 재생한다 — 이미 본 id가 다시 온다
+    send(
+      caption('c2', '둘째', { isFinal: true }),
+      caption('c3', '셋째', { isFinal: true }),
+      caption('c4', '넷째', { isFinal: true }),
+    )
+
+    expect(state().entries.map((entry) => entry.id)).toEqual(['c1', 'c2', 'c3', 'c4'])
+    expect(state().entries.map((entry) => entry.sourceText)).toEqual([
+      '첫째',
+      '둘째',
+      '셋째',
+      '넷째',
+    ])
+    expect(state().entries.every((entry) => entry.isFinal)).toBe(true)
+    expect(state().partial).toBeNull()
+  })
+
+  it('reset은 상태·세션·자막·오류를 모두 되돌린다', () => {
+    send(caption('c1', '첫째', { isFinal: true }))
+    useCaptionStore.getState().setStatus({ state: 'open' })
+    useCaptionStore.getState().setError('stream-failed')
+
+    useCaptionStore.getState().reset()
+
+    expect(useCaptionStore.getState()).toMatchObject({
+      status: { state: 'idle' },
+      session: null,
+      entries: [],
+      partial: null,
+      ended: false,
+      lastError: null,
+    })
+  })
+})
+
 describe('부분 자막 (진행 중인 문장)', () => {
   it('아무리 많이 와도 확정 리스트의 참조가 바뀌지 않는다', () => {
     send(caption('s01', '안녕하세요', { isFinal: true }))
@@ -188,11 +275,12 @@ describe('세션 경계', () => {
 describe('자막과 무관한 이벤트', () => {
   it('하트비트는 리스트도 진행 중 자막도 건드리지 않는다', () => {
     send(caption('s01', '첫 문장', { isFinal: true }), caption('s02', '진행 중'))
-    const { entries, partial } = state()
+    const { entries, partial, session: session_ } = state()
 
     send({ type: 'heartbeat', ts: Date.now() })
 
     expect(state().entries).toBe(entries)
     expect(state().partial).toBe(partial)
+    expect(state().session).toBe(session_)
   })
 })

@@ -263,7 +263,16 @@ const stylesFor = createThemedStyles((color) => ({
     left: 0,
     backgroundColor: color.bg,
   },
-  listContent: { paddingHorizontal: space[4], paddingBottom: space[10], gap: space[4] },
+  // 자막은 아래에서 위로 쌓인다 — 진행 중인 문장(리스트 바로 아래 고정)과 붙어 있어야
+  // 시작 직후 화면이 절반 비어 보이지 않는다. 내용이 넘치면 평소처럼 스크롤된다.
+  listContent: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+    paddingHorizontal: space[4],
+    paddingTop: space[4],
+    paddingBottom: space[4],
+    gap: space[4],
+  },
   resumeButton: {
     position: 'absolute',
     bottom: space[6],
