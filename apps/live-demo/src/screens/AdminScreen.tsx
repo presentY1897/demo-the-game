@@ -1,25 +1,52 @@
-import { Text, View } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
 import { useT } from '../i18n'
-import { createThemedStyles, font, space, useThemedStyles } from '../theme'
+import { createThemedStyles, font, radius, space, useThemedStyles } from '../theme'
+import { LanguageBoard } from './admin/LanguageBoard'
+import { RoomBoard } from './admin/RoomBoard'
 
-/**
- * S14 — CareTalk 관리자 뷰(상담방 현황·지원 언어 설정)의 자리.
- * 라우트(`/admin`)와 진입만 먼저 뚫어 둔 플레이스홀더다. 내용은 S14 담당이 채운다.
- */
-export function AdminScreen() {
+/** 데모가 어디까지인지 화면에서 밝힌다 — 인증·로그 정책이 실서비스 1순위(F02/S14) */
+function ScopeNote() {
   const t = useT()
   const styles = useThemedStyles(stylesFor)
 
   return (
-    <View style={styles.wrap}>
-      <Text style={styles.badge}>{t('common.comingSoon')}</Text>
-      <Text style={styles.body}>{t('admin.comingSoon')}</Text>
+    <View style={styles.note}>
+      <Text style={styles.noteTitle}>{t('admin.scopeTitle')}</Text>
+      <Text style={styles.noteBody}>{t('admin.scopeAuth')}</Text>
+      <Text style={styles.noteBody}>{t('admin.scopePrivacy')}</Text>
     </View>
   )
 }
 
+/**
+ * 병원 내 관리자(원무·국제진료팀)의 화면(S14).
+ * "읽기 위주 최소" — 상담이 몇 건 도는지 보고, 환자에게 열어 줄 언어를 켜고 끈다.
+ * 상담 내용은 이 화면의 어떤 요청에도 담기지 않는다(F02).
+ */
+export function AdminScreen() {
+  const styles = useThemedStyles(stylesFor)
+
+  return (
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <RoomBoard />
+      <LanguageBoard />
+      <ScopeNote />
+    </ScrollView>
+  )
+}
+
 const stylesFor = createThemedStyles((color) => ({
-  wrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space[2], padding: space[5] },
-  badge: { fontSize: font.md, fontWeight: '700', color: color.primary },
-  body: { fontSize: font.sm, color: color.textMuted, textAlign: 'center' },
+  screen: { flex: 1 },
+  content: { padding: space[5], gap: space[4] },
+  note: {
+    gap: space[2],
+    padding: space[4],
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: color.border,
+    backgroundColor: color.surfaceSubtle,
+  },
+  noteTitle: { fontSize: font.xs, fontWeight: '700', color: color.textMuted },
+  noteBody: { fontSize: font.xs, color: color.textMuted, lineHeight: font.md },
 }))

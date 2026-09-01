@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import type { ParticipantRole } from '@thegame/realtime'
+import { ADMIN_SETTINGS_QUERY_KEY } from '../api/admin'
 import { fetchAdminSettings } from '../api/sessions'
 import { selectPatientLangs, selectStaffLangs } from '../stores/languageSelectors'
 
@@ -17,7 +18,8 @@ interface LanguageOptions {
  */
 export function useLanguageOptions(role: ParticipantRole): LanguageOptions {
   const query = useQuery({
-    queryKey: ['admin-settings'],
+    // 관리자 화면(S14)이 저장 후 invalidate 하는 키와 반드시 같아야 한다
+    queryKey: ADMIN_SETTINGS_QUERY_KEY,
     queryFn: fetchAdminSettings,
     retry: 1,
     staleTime: 60_000,
