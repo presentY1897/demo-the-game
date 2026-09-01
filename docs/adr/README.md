@@ -34,3 +34,4 @@
 | [0007](./0007-translation-fallback-chain.md) | CareTalk 대화 번역은 3단 폴백 체인 (사전 → Azure → `[demo]`) | Accepted |
 | [0008](./0008-http-contract-in-realtime-package.md) | HTTP 계약도 realtime의 zod 스키마로 정의 | Accepted |
 | [0009](./0009-contrast-as-token-contract.md) | 대비를 디자인 토큰의 계약으로 두고 테스트로 고정 | Accepted |
+| [0010](./0010-aria-props-for-accessibility-state.md) | RN 접근성 상태를 웹에서 aria-* 로 전달 | Accepted |
