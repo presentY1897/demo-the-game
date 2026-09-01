@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "storybook dev -p 6006",
     "build": "storybook build",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "@thegame/config": "workspace:*",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
+    "eslint": "^9.39.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "storybook": "^9.1.0",
