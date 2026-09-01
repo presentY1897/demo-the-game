@@ -1,13 +1,31 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ButtonLink, Card, Heading, Text } from '@thegame/ui'
-import { CaptionStage } from '../../components/CaptionStage'
-import { ChatPreview } from '../../components/ChatPreview'
-import { getDict, isSiteLocale } from '../../i18n/dictionaries'
+import { CaptionStage } from '../../../components/CaptionStage'
+import { ChatPreview } from '../../../components/ChatPreview'
+import { getDict, isSiteLocale } from '../../../i18n/dictionaries'
+import { pageMetadata } from '../../../site'
 import styles from './page.module.css'
 
 const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'http://localhost:8081'
 
-export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
+interface LandingParams {
+  params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: LandingParams): Promise<Metadata> {
+  const { locale } = await params
+  if (!isSiteLocale(locale)) return {}
+  const dict = getDict(locale)
+  return pageMetadata({
+    locale,
+    title: dict.meta.landingTitle,
+    description: dict.meta.landingDescription,
+  })
+}
+
+export default async function LandingPage({ params }: LandingParams) {
   const { locale } = await params
   if (!isSiteLocale(locale)) notFound()
   const dict = getDict(locale)
@@ -78,6 +96,20 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
             </li>
           ))}
         </ol>
+      </section>
+
+      <section id="about" className={styles.about}>
+        <p className={`mono ${styles.eyebrow}`}>{dict.about.eyebrow}</p>
+        <Heading level={2}>{dict.about.title}</Heading>
+        <Text tone="muted">{dict.about.mission}</Text>
+        <div className={styles.aboutLinks}>
+          <Link className={styles.aboutLink} href={`/${locale}#symposia`}>
+            {dict.about.symposiaLink}
+          </Link>
+          <Link className={styles.aboutLink} href={`/${locale}#caretalk`}>
+            {dict.about.caretalkLink}
+          </Link>
+        </div>
       </section>
 
       <section className={styles.ctaBand}>

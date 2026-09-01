@@ -1,0 +1,63 @@
+<!doctype html>
+<!--
+  OG 이미지(1200×630) 원본. 헤드리스 크로미움 스크린샷으로 public/og.png를 만든다.
+  재생성: node scripts/make-images.mjs  (README 참고)
+-->
+<meta charset="utf-8" />
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; }
+  body {
+    background: #103F3D;
+    color: #F0FBFA;
+    font-family: 'Noto Sans CJK KR', 'Noto Sans KR', 'DejaVu Sans', sans-serif;
+    padding: 76px 88px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  body::after {
+    content: '';
+    position: absolute;
+    right: -180px;
+    top: -180px;
+    width: 620px;
+    height: 620px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(23,160,153,.55), rgba(16,63,61,0) 70%);
+  }
+  .top { display: flex; align-items: center; gap: 20px; position: relative; }
+  .brand { font-size: 30px; font-weight: 800; letter-spacing: -0.01em; }
+  .live {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 20px; font-weight: 700; letter-spacing: 0.14em; color: #FF8A70;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: #F76A4D; }
+  .caption { position: relative; }
+  .pair { font-size: 22px; letter-spacing: 0.16em; color: #38BAB5; margin-bottom: 18px; font-weight: 700; }
+  .src { font-size: 52px; font-weight: 800; line-height: 1.3; letter-spacing: -0.02em; }
+  .cursor { color: #FF8A70; }
+  .dst { font-size: 34px; line-height: 1.45; color: #A7E8E3; margin-top: 22px; }
+  .bottom { display: flex; align-items: center; gap: 18px; position: relative; }
+  .chip {
+    font-size: 24px; font-weight: 700; padding: 12px 24px; border-radius: 999px;
+    border: 2px solid rgba(110,212,206,.45); color: #6ED4CE;
+  }
+  .tag { font-size: 24px; color: #6ED4CE; opacity: .85; }
+</style>
+<div class="top">
+  <span class="brand">TheGame</span>
+  <span class="live"><span class="dot"></span>LIVE</span>
+</div>
+<div class="caption">
+  <div class="pair">KO → EN · JA · ZH</div>
+  <div class="src">기미 치료에서 저출력 레이저의 역할은<br />지난 십 년간 크게 확장되었습니다<span class="cursor">▌</span></div>
+  <div class="dst">The role of low-fluence lasers in melasma treatment<br />has expanded greatly over the past decade.</div>
+</div>
+<div class="bottom">
+  <span class="chip">Symposia</span>
+  <span class="chip">CareTalk</span>
+  <span class="tag">Real-time translation for congresses and clinics</span>
+</div>

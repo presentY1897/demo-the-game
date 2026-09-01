@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-export default function RootRedirect() {
+/** 진입 스텁(`/`)에서만 쓰는 클라이언트 리다이렉트 — 정적 export라 서버 리다이렉트가 없다 */
+export function LocaleRedirect() {
   const router = useRouter()
 
   useEffect(() => {
@@ -11,11 +12,5 @@ export default function RootRedirect() {
     router.replace(`/${preferred}`)
   }, [router])
 
-  return (
-    <main style={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>
-      <p>
-        <a href="/en">English</a> · <a href="/ko">한국어</a>
-      </p>
-    </main>
-  )
+  return null
 }

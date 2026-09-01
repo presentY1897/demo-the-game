@@ -1,0 +1,40 @@
+.main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--tg-space-16) var(--tg-space-5);
+  display: grid;
+  gap: var(--tg-space-8);
+}
+
+.code {
+  margin: 0;
+  font-size: var(--tg-font-size-sm);
+  font-weight: 600;
+  color: var(--tg-color-accent);
+}
+
+.block {
+  display: grid;
+  gap: var(--tg-space-2);
+  justify-items: start;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--tg-font-size-2xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.body {
+  margin: 0;
+  color: var(--tg-color-text-muted);
+}
+
+.link {
+  margin-top: var(--tg-space-2);
+  font-weight: var(--tg-font-weight-semibold);
+  color: var(--tg-color-primary);
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+}

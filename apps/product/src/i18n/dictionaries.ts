@@ -1,8 +1,25 @@
 const en = {
   meta: {
+    siteName: 'TheGame',
     title: 'Symposia & CareTalk — TheGame',
+    /** 하위 페이지 제목에 붙는 접미사 (Next `title.template`) */
+    titleTemplate: '%s — TheGame',
     description:
       'Real-time translation for aesthetic medicine congresses and clinics with international patients. Live captions for every attendee, two-way interpretation for every consultation.',
+    landingTitle: 'Real-time translation for congresses and clinics',
+    landingDescription:
+      'Symposia streams translated captions to every attendee’s phone. CareTalk interprets both sides of a consultation. One speech-to-caption pipeline, two products.',
+    contactTitle: 'Request a demo',
+    contactDescription:
+      'Tell us where you want to run Symposia or CareTalk. We reply within one business day.',
+    entryTitle: 'Choose your language',
+    ogImageAlt: 'Symposia live captions — a Korean lecture line resolving into its English translation',
+  },
+  org: {
+    description:
+      'TheGame builds real-time speech translation for aesthetic medicine congresses and for clinics treating international patients.',
+    addressLocality: 'Seoul',
+    addressCountry: 'KR',
   },
   nav: {
     symposia: 'Symposia',
@@ -75,6 +92,14 @@ const en = {
       },
     ],
   },
+  about: {
+    eyebrow: 'ABOUT THEGAME',
+    title: 'The team behind both products',
+    mission:
+      'TheGame builds real-time translation for the rooms where a missed sentence has a cost — a congress hall where a technique is being explained, a consult room where a symptom is being described. We run one speech-to-caption pipeline and ship it in two shapes: one that broadcasts to a whole room, one that sits between two people.',
+    symposiaLink: 'Symposia — for congresses',
+    caretalkLink: 'CareTalk — for clinics',
+  },
   cta: {
     title: 'See it at your next congress',
     body: 'We run a live pilot at your venue — one session is enough to feel the difference.',
@@ -95,6 +120,12 @@ const en = {
     errorName: 'Please enter your name.',
     errorEmail: 'Please enter a valid email address.',
   },
+  notFound: {
+    code: '404',
+    title: 'Page not found',
+    body: 'That page isn’t here — it may have moved.',
+    home: 'Go to the homepage',
+  },
   footer: {
     address: 'W-908, 7 Yeonmujang 5ga-gil, Seongdong-gu, Seoul',
     rights: '© 2026 TheGame. All rights reserved.',
@@ -105,9 +136,25 @@ export type SiteDict = typeof en
 
 const ko: SiteDict = {
   meta: {
+    siteName: '더게임',
     title: 'Symposia & CareTalk — 더게임',
+    titleTemplate: '%s — 더게임',
     description:
       '미용의료 학회와 외국인 환자 병원을 위한 실시간 번역. 모든 참석자에게 실시간 자막을, 모든 진료에 양방향 통역을 제공합니다.',
+    landingTitle: '학회와 병원을 위한 실시간 번역',
+    landingDescription:
+      'Symposia는 번역 자막을 참석자의 휴대폰으로 실시간 전달하고, CareTalk은 진료실의 양방향 대화를 통역합니다. 하나의 음성-자막 파이프라인, 두 개의 제품.',
+    contactTitle: '도입 문의',
+    contactDescription:
+      'Symposia나 CareTalk을 어디에서 쓰실지 알려주세요. 1영업일 안에 회신드립니다.',
+    entryTitle: '언어를 선택하세요',
+    ogImageAlt: 'Symposia 실시간 자막 — 한국어 강연 문장이 영어 번역으로 확정되는 화면',
+  },
+  org: {
+    description:
+      '더게임은 미용의료 학회와 외국인 환자를 진료하는 병원을 위한 실시간 음성 번역을 만듭니다.',
+    addressLocality: '서울',
+    addressCountry: 'KR',
   },
   nav: {
     symposia: 'Symposia',
@@ -180,6 +227,14 @@ const ko: SiteDict = {
       },
     ],
   },
+  about: {
+    eyebrow: '더게임 소개',
+    title: '두 제품을 만드는 팀',
+    mission:
+      '더게임은 문장 하나를 놓치는 비용이 큰 자리 — 시술 기법을 설명하는 학회장, 증상을 설명하는 진료실 — 를 위한 실시간 번역을 만듭니다. 하나의 음성-자막 파이프라인을 두 가지 형태로 제공합니다. 강연장 전체에 브로드캐스트하는 쪽과, 두 사람 사이에 놓이는 쪽입니다.',
+    symposiaLink: 'Symposia — 학회를 위한',
+    caretalkLink: 'CareTalk — 병원을 위한',
+  },
   cta: {
     title: '다음 학회에서 직접 확인하세요',
     body: '행사장에서 라이브 파일럿을 진행합니다 — 세션 하나면 차이를 느끼기에 충분합니다.',
@@ -199,6 +254,12 @@ const ko: SiteDict = {
     successBody: '감사합니다 — 1영업일 안에 회신드리겠습니다.',
     errorName: '이름을 입력해 주세요.',
     errorEmail: '올바른 이메일 주소를 입력해 주세요.',
+  },
+  notFound: {
+    code: '404',
+    title: '페이지를 찾을 수 없습니다',
+    body: '찾으시는 페이지가 없습니다 — 주소가 바뀌었을 수 있습니다.',
+    home: '홈으로 가기',
   },
   footer: {
     address: '서울 성동구 연무장5가길 7, W동 908호',

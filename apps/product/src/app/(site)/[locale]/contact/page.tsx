@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Heading, Text } from '@thegame/ui'
-import { ContactForm } from '../../../components/ContactForm'
-import { getDict, isSiteLocale } from '../../../i18n/dictionaries'
+import { ContactForm } from '../../../../components/ContactForm'
+import { getDict, isSiteLocale } from '../../../../i18n/dictionaries'
+import { pageMetadata } from '../../../../site'
 import styles from './page.module.css'
 
 interface ContactParams {
@@ -13,7 +14,12 @@ export async function generateMetadata({ params }: ContactParams): Promise<Metad
   const { locale } = await params
   if (!isSiteLocale(locale)) return {}
   const dict = getDict(locale)
-  return { title: `${dict.contact.title} — TheGame` }
+  return pageMetadata({
+    locale,
+    suffix: '/contact',
+    title: dict.meta.contactTitle,
+    description: dict.meta.contactDescription,
+  })
 }
 
 export default async function ContactPage({ params }: ContactParams) {
