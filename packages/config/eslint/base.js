@@ -66,12 +66,14 @@ export const base = [
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
 
-  // 테스트에서는 하네스 목적의 any/빈 함수가 정당하다
+  // 테스트에서는 하네스 목적의 any/빈 함수가 정당하고, 픽스처를 JSON.parse로
+  // 되읽는 것도 정상이다 (요청 바디 검증 등) — 실시간 파싱 규칙의 대상이 아니다
   {
     files: ['**/__tests__/**/*.{ts,tsx}', '**/*.{test,spec}.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-empty-function': 'off',
+      '@thegame/no-realtime-event-parse': 'off',
     },
   },
 ]
