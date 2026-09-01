@@ -33,3 +33,4 @@
 | [0006](./0006-hosting-render-and-vercel.md) | 목 서버는 Render, 웹 산출물은 Vercel에 배포 | Accepted |
 | [0007](./0007-translation-fallback-chain.md) | CareTalk 대화 번역은 3단 폴백 체인 (사전 → Azure → `[demo]`) | Accepted |
 | [0008](./0008-http-contract-in-realtime-package.md) | HTTP 계약도 realtime의 zod 스키마로 정의 | Accepted |
+| [0009](./0009-contrast-as-token-contract.md) | 대비를 디자인 토큰의 계약으로 두고 테스트로 고정 | Accepted |
