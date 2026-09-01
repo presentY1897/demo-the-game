@@ -22,7 +22,8 @@ a {
 }
 
 .mono {
-  font-family: 'IBM Plex Mono', var(--tg-font-mono);
+  /* --tg-font-mono-web는 next/font가 주입하는 자체 호스팅 IBM Plex Mono */
+  font-family: var(--tg-font-mono-web), var(--tg-font-mono);
   letter-spacing: 0.08em;
 }
 

@@ -37,6 +37,19 @@
   }
 }
 
+.stack {
+  display: grid;
+}
+
+/* 모든 문장이 같은 칸을 쓰므로 컨테이너 높이 = 가장 긴 문장의 높이로 고정된다 */
+.layer {
+  grid-area: 1 / 1;
+}
+
+.layer[data-active='false'] {
+  visibility: hidden;
+}
+
 .source {
   margin: 0;
   font-size: clamp(var(--tg-font-size-lg), 2.6vw, var(--tg-font-size-2xl));
@@ -45,8 +58,23 @@
   min-height: 2.6em;
 }
 
+.caretAnchor {
+  position: relative;
+  display: inline-block;
+  width: 0;
+}
+
 .cursor {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  line-height: 1;
   animation: blink 0.9s steps(2) infinite;
+}
+
+/* 아직 타이핑되지 않은 뒷부분: 공간만 차지하고 보이지 않는다 */
+.pending {
+  opacity: 0;
 }
 
 @keyframes blink {
@@ -58,8 +86,17 @@
 .translationSlot {
   min-height: 3.4em;
   margin-top: var(--tg-space-4);
+}
+
+/* 번역 블록은 항상 렌더해 높이를 확정하고, 확정 시점에 나타나기만 한다 */
+.reveal {
   display: grid;
   gap: var(--tg-space-1);
+  opacity: 0;
+}
+
+.revealVisible {
+  animation: rise 0.4s ease both;
 }
 
 .pair {
@@ -70,13 +107,16 @@
   margin: 0;
   font-size: clamp(var(--tg-font-size-md), 2vw, var(--tg-font-size-xl));
   line-height: var(--tg-leading-relaxed);
-  animation: rise 0.4s ease both;
 }
 
 @keyframes rise {
   from {
     opacity: 0;
     transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
