@@ -7,7 +7,8 @@
     "build": "next build",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "font:subset": "node scripts/subset-brand-font.mjs"
   },
   "dependencies": {
     "@thegame/i18n": "workspace:*",
@@ -23,6 +24,7 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "eslint": "^9.39.0",
+    "subset-font": "^2.7.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.0"
   }

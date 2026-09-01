@@ -20,3 +20,6 @@ next-env.d.ts
 .DS_Store
 coverage/
 *.tsbuildinfo
+
+# Lighthouse CLI가 WSL에서 만드는 크롬 프로필 (윈도우 경로가 통째로 파일명이 된다)
+C:\\*

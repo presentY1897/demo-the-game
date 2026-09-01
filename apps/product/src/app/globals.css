@@ -4,7 +4,9 @@
 
 body {
   margin: 0;
-  font-family: var(--tg-font-sans);
+  /* --tg-font-sans-web는 next/font가 주입하는 자체 호스팅 Pretendard 서브셋.
+     서브셋에 없는 글자는 토큰의 폴백 체인(--tg-font-sans)이 그대로 받는다. */
+  font-family: var(--tg-font-sans-web), var(--tg-font-sans);
   color: var(--tg-color-text);
   background: var(--tg-color-bg);
   -webkit-font-smoothing: antialiased;

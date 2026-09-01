@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { DocumentHead } from '../components/DocumentHead'
-import { plexMono } from '../fonts'
+import { brandSans, plexMono } from '../fonts'
 import { getDict, siteLocales } from '../i18n/dictionaries'
 import { localePath, withSiteName } from '../site'
 import styles from './not-found.module.css'
@@ -21,7 +21,7 @@ export default function NotFound() {
   return (
     <>
       <DocumentHead />
-      <main className={`${plexMono.variable} ${styles.main}`}>
+      <main className={`${brandSans.variable} ${plexMono.variable} ${styles.main}`}>
         <p className={`mono ${styles.code}`}>{getDict('en').notFound.code}</p>
         {siteLocales.map((locale) => {
           const dict = getDict(locale)

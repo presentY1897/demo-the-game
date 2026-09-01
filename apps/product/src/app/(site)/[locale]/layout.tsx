@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { DocumentHead } from '../../../components/DocumentHead'
-import { plexMono } from '../../../fonts'
+import { brandSans, plexMono } from '../../../fonts'
 import { SiteFooter } from '../../../components/SiteFooter'
 import { SiteHeader } from '../../../components/SiteHeader'
 import { getDict, isSiteLocale, siteLocales, type SiteLocale } from '../../../i18n/dictionaries'
@@ -69,7 +69,7 @@ export default async function LocaleRootLayout({
   const dict = getDict(locale)
 
   return (
-    <html lang={locale} className={plexMono.variable}>
+    <html lang={locale} className={`${brandSans.variable} ${plexMono.variable}`}>
       <head>
         <DocumentHead />
         <script
