@@ -22,9 +22,14 @@ Android 에뮬레이터는 호스트를 `10.0.2.2`로 자동 접근하며,
 - **Symposia 화면**: 부분 자막 실시간 교체(▌ 커서) → 확정 시 번역 병기,
   자동 스크롤(수동 스크롤 시 일시정지 + 재개 버튼), 폰트 크기 조절(A−/A＋),
   연결 상태 배지, 재시도 흐름. 서버를 껐다 켜면 Last-Event-ID 복구를 볼 수 있다.
+  **스테이지 모드**(S04): 어두운 강연장용 — 강제 다크 + 최신 확정 1건·진행 중
+  부분 자막만 대형 표시 + `expo-keep-awake`. 히스토리 리스트는 언마운트하지 않고
+  덮기만 해서 토글 왕복 시 스크롤·데이터가 보존된다.
 - **CareTalk 화면**: 환자(EN) ↔ 의료진(KO, 봇 대행) 채팅 — 말풍선에 원문+번역,
   typing 인디케이터, 연결 끊김 중 입력은 전송 큐에 쌓였다가 재연결 시 flush.
-- **디자인**: `@thegame/tokens` 원값을 RN StyleSheet로 소비 (`theme.ts`).
+- **디자인**: `@thegame/tokens` 원값을 RN StyleSheet로 소비 (`theme/`).
+  light/dark는 테마 컨텍스트(`useTheme`/`useThemedStyles`)로 전환하며
+  기본값은 OS 설정(`useColorScheme`), 스테이지 모드는 강제 다크다.
   UI 문자열은 `@thegame/i18n` (헤더에서 ko/en 전환).
 - **내비게이션**: 화면 3개뿐이라 라우팅 라이브러리 없이 Zustand 라우트 스토어로
   처리 (`navigation.ts`) — 의존성 최소화를 위한 의도적 선택.
