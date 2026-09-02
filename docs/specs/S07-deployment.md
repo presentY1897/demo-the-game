@@ -395,14 +395,33 @@ vercel deploy --prod --yes
 | 10 | 미지 경로 → 홈 정규화 | ✅ |
 | 11 | product SEO가 배포 도메인으로 나간다 | ✅ canonical·hreflang·OG·sitemap 전부 |
 
-### 남은 것
+### CORS 잠금 (적용 완료)
 
-- **`ALLOWED_ORIGINS` 미설정** — 현재 CORS는 `*`다(`access-control-allow-origin: *` 확인).
-  Render 대시보드 → Environment → `ALLOWED_ORIGINS=https://thegame-live-demo.vercel.app`
-  → Save. 저장하면 자동 재시작되고 로그에 `[mock-server] CORS: … 만 허용`이 찍힌다.
-  Render API 키가 없어 이 단계는 수행하지 못했다.
+`ALLOWED_ORIGINS=https://thegame-live-demo.vercel.app` 적용 후 배포 환경에서 검증했다.
+
+| 확인 | 결과 |
+|---|---|
+| HTTP, 허용 오리진 | `access-control-allow-origin: https://thegame-live-demo.vercel.app` + `Vary: Origin` |
+| HTTP, 낯선 오리진 | 헤더 없음 → 브라우저가 차단 |
+| Origin 없는 요청 (Render 헬스체크·curl) | 200 — CORS는 Origin 없는 요청에 적용되지 않는다 |
+| 홈에서 세션 목록 수신 | ✅ |
+| 참가자 자막 수신 (SSE) | ✅ |
+| 2기기 실대화 (`wss://`) | ✅ |
+| 낯선 페이지(example.com)에서 API fetch | ✅ 브라우저가 차단 |
+
+**적용 과정에서 걸린 것**: 이 서버는 부팅 시 한 번만 `process.env['ALLOWED_ORIGINS']`를
+읽는다(`createMockServer`). 값을 저장해도 **프로세스가 새로 뜨지 않으면 옛 설정 그대로**
+돌고, 부팅 로그(`[mock-server] CORS: …`)도 새로 찍히지 않는다. 값이 맞는데 `*`가 나오면
+값을 의심하기 전에 **재시작 여부**부터 볼 것. Render 대시보드의 Manual Deploy →
+Restart service로 해결했다.
+
+값이 이런 모양이면 코드가 의도적으로 "전부 허용"으로 되돌아간다 — 잠갔다고 착각하기 쉬우니 주의:
+`*` 단독 · `https://a.com,*` 처럼 홑 `*`가 섞인 경우 · 빈 문자열 · 공백만.
+(`https://*.vercel.app`처럼 패턴 안에 들어간 `*`는 정상 동작한다.)
+
+### 남은 것
 - **콜드스타트 실측** — 유휴로 잠든 뒤 첫 요청이 **10.2초**, 바로 이어진 두 번째 요청은
   0.20초였다(2026-09-01). 수십 초를 각오했는데 그보다 짧다. 데모로 수용 가능한 수준이고,
   README에도 "첫 접속에 수십 초가 걸릴 수 있다"고 적어 뒀다.
-- **README 데모 GIF** — 미작성.
+- **README 데모 GIF** — 미작성. (S11)
 
